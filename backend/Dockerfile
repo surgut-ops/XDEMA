@@ -11,4 +11,4 @@ COPY src ./src
 RUN npm run build
 RUN test -f dist/main.js && echo "✅ main.js exists" || exit 1
 EXPOSE 3001
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
