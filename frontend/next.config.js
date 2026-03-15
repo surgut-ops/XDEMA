@@ -6,8 +6,6 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.s3.amazonaws.com' },
     ],
   },
-  // Raw body for Stripe webhooks (on API routes)
-  api: { bodyParser: false },
 };
 
 module.exports = nextConfig;

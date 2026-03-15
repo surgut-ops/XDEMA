@@ -37,17 +37,18 @@ npm run dev         # → http://localhost:3000
 
 ## Деплой
 
+> **Важно:** если деплой падает с «No Next.js version» (Vercel) или «Cannot find module /app/dist/main» (Railway), проверь **Root Directory** в настройках проекта. Подробно: см. **[DEPLOY.md](./DEPLOY.md)**.
+
 ### Frontend → Vercel
-```bash
-cd frontend && npx vercel
-# Добавить env переменные в Vercel Dashboard
-```
+- В настройках проекта Vercel укажи **Root Directory: `frontend`** (Settings → General).
+- Затем: `cd frontend && npx vercel` или подключи репозиторий и деплой по `main`.
+- Добавь env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_STRIPE_PK`, `NEXT_PUBLIC_SITE_URL`.
 
 ### Backend → Railway.app
-1. railway.app → New Project → Deploy from GitHub → выбрать папку `/backend`
-2. Добавить PostgreSQL сервис
-3. Скопировать `DATABASE_URL` из PostgreSQL сервиса
-4. Добавить все переменные из `.env.example` в Settings → Variables
+- В настройках сервиса XDEMA укажи **Root Directory: `backend`** (Settings → Source).
+- New Project → Deploy from GitHub → репозиторий XDEMA.
+- Добавить PostgreSQL, скопировать `DATABASE_URL`.
+- Добавить переменные из `backend/.env` (или `.env.example`) в Settings → Variables.
 
 ### Stripe webhooks (production)
 ```
