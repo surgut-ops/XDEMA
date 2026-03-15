@@ -18,18 +18,18 @@
 
 ## Railway (backend XDEMA)
 
-**Ошибки «Cannot find module /app/dist/main»** и **«healthcheck failed»** возникают, когда сервис XDEMA собирает не backend, а frontend (или корень), и команда `node dist/main` не находит файл.
+**Ошибки «Cannot find module /app/dist/main»** и **«healthcheck failed»** возникают, когда Railway собирает не backend (NestJS), а frontend (Next.js) — в логах при этом видно `> next build`. Тогда в образе нет `dist/main.js`, и старт падает.
 
 ### Что сделать
 
 1. Открой проект на Railway, выбери сервис **XDEMA** (backend).
-2. Зайди в **Settings** → **Source** (или **Service**).
-3. В поле **Root Directory** укажи: **`backend`** (без слэша в начале).
-4. Сохрани и запусти **Redeploy**.
+2. Зайди в **Settings** → **Source**.
+3. В поле **Root Directory** укажи: **`backend`** (без слэша в начале). Сохрани.
+4. В корне папки `backend` в репозитории лежит **Dockerfile** — Railway его подхватит и будет собирать образ через Docker (NestJS), а не Nixpacks. Запусти **Redeploy**.
 
 Убедись, что:
-- **Build Command:** `npm run build` (NestJS соберёт `dist/`).
-- **Start Command:** `npm run start:prod` (или `node dist/main`).
-- **Healthcheck Path:** `/api/settings` (как в `backend/railway.json`).
+- **Root Directory** именно `backend` (не `/backend` и не пусто).
+- В **Variables** у XDEMA заданы минимум: `DATABASE_URL` (от сервиса PostgreSQL в Railway, не localhost), `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `FRONTEND_URL` (URL твоего фронта на Vercel), `BACKEND_URL` (URL самого бэкенда на Railway после Generate domain).
+- **Healthcheck Path:** `/api/settings` (по умолчанию из `backend/railway.json`).
 
-После этого сборка будет в `backend/`, в образ попадёт `dist/main.js`, и healthcheck сможет достучаться до API.
+Подробный список переменных и что обязательно: см. **[ENV_KEYS.md](./ENV_KEYS.md)**.

@@ -45,10 +45,9 @@ npm run dev         # → http://localhost:3000
 - Добавь env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_STRIPE_PK`, `NEXT_PUBLIC_SITE_URL`.
 
 ### Backend → Railway.app
-- В настройках сервиса XDEMA укажи **Root Directory: `backend`** (Settings → Source).
-- New Project → Deploy from GitHub → репозиторий XDEMA.
-- Добавить PostgreSQL, скопировать `DATABASE_URL`.
-- Добавить переменные из `backend/.env` (или `.env.example`) в Settings → Variables.
+- В настройках сервиса XDEMA укажи **Root Directory: `backend`** (Settings → Source). В `backend/` есть Dockerfile — Railway соберёт NestJS, а не frontend.
+- New Project → Deploy from GitHub → репозиторий XDEMA. Добавить сервис **PostgreSQL**, скопировать `DATABASE_URL` в Variables XDEMA.
+- Список переменных (обязательные и опциональные): **[ENV_KEYS.md](./ENV_KEYS.md)**.
 
 ### Stripe webhooks (production)
 ```
