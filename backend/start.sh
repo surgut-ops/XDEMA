@@ -1,7 +1,13 @@
 #!/bin/sh
-echo "Running Prisma migrations..."
-npx prisma migrate deploy
-echo "Seeding database..."
-npx prisma db seed || echo "Seed skipped (already done)"
-echo "Starting NestJS..."
+set -e
+
+echo "=== Pushing Prisma schema to database ==="
+npx prisma db push --accept-data-loss
+echo "=== Schema pushed successfully ==="
+
+echo "=== Seeding database ==="
+npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts || echo "Seed skipped"
+echo "=== Seed done ==="
+
+echo "=== Starting NestJS ==="
 exec node dist/main
