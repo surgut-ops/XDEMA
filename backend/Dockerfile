@@ -13,8 +13,8 @@ RUN apt-get update \
 # Зависимости + сборка
 FROM base AS builder
 COPY package.json package-lock.json* ./
-RUN npm install
 COPY . .
+RUN npm install
 RUN npx prisma generate
 RUN npm run build
 
