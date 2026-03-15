@@ -1,13 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useUserStore } from '@/store';
+import { useUserStore, useModalStore } from '@/store';
 import { usersApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 
 export default function AccountPage() {
-  const { user, logout, openAuth } = useUserStore() as any;
+  const { user, logout } = useUserStore();
+  const { openAuth } = useModalStore();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [pwOld, setPwOld] = useState(''); const [pwNew, setPwNew] = useState(''); const [pwConf, setPwConf] = useState('');
