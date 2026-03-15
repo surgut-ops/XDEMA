@@ -30,7 +30,7 @@
   --hc1: #ffffff;
   --hc2: #00e5ff;
   --hc3: #ff2d78;
-  --hero-title-sz: clamp(4rem,11vw,9rem);
+  --hero-title-sz: clamp(2.6rem, 11vw, 9rem);
   --hero-sub-sz:   clamp(.88rem,2vw,1.05rem);
 }
 
@@ -96,9 +96,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  cursor: none;
 }
-* { cursor: none !important; }
+@media (hover: hover) and (pointer: fine) {
+  * { cursor: none !important; }
+}
 .perf * { cursor: auto !important; }
 
 /* Scrollbar */
@@ -357,8 +358,11 @@ body {
   .pricing-card { padding: 1.4rem; }
   .smart-popup { width: calc(100vw - 2rem); right: 1rem; }
 }
+@media (max-width: 640px) {
+  :root { --hero-title-sz: clamp(2.2rem, 14vw, 4.5rem); }
+}
 @media (max-width: 480px) {
-  :root { --hero-title-sz: clamp(3rem, 16vw, 5.5rem); }
+  :root { --hero-title-sz: clamp(2rem, 13vw, 3.8rem); }
   .section { @apply px-3; }
 }
 /* Reduce motion system preference */

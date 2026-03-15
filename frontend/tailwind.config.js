@@ -7,6 +7,9 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      screens: {
+        xs: '480px',
+      },
       fontFamily: {
         syne: ['var(--font-syne)', 'sans-serif'],
         dm: ['var(--font-dm)', 'sans-serif'],

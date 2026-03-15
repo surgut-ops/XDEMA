@@ -6,9 +6,12 @@ import { usePerformanceStore } from '@/store';
 export function MusicCursor() {
   const { perfMode } = usePerformanceStore();
   const ref = useRef<HTMLDivElement>(null);
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
-    if (perfMode) return;
+    const touch = typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    setIsTouch(touch);
+    if (touch || perfMode) return;
     const el = ref.current;
     if (!el) return;
     const onMove = (e: MouseEvent) => {
@@ -25,7 +28,6 @@ export function MusicCursor() {
     document.addEventListener('mouseenter', onEnter);
     document.addEventListener('mousedown', onDown);
     document.addEventListener('mouseup', onUp);
-    // Hot on interactive
     const onBtnEnter = () => el.classList.add('on-btn');
     const onBtnLeave = () => el.classList.remove('on-btn');
     document.querySelectorAll('button,a,.pricing-card').forEach(el2 => {
@@ -41,7 +43,7 @@ export function MusicCursor() {
     };
   }, [perfMode]);
 
-  if (perfMode) return null;
+  if (perfMode || isTouch) return null;
 
   return (
     <div id="music-cursor" ref={ref} style={{ position:'fixed', zIndex:9998, pointerEvents:'none', fontSize:17, lineHeight:1, transform:'translate(-3px,-15px)', userSelect:'none' }}>
@@ -64,12 +66,30 @@ export function ThemeToggle() {
     localStorage.setItem('xdema-theme', next ? 'dark' : 'light');
   };
   return (
-    <button onClick={toggle} title="Сменить тему"
-      className="w-[34px] h-[34px] flex items-center justify-center rounded-[8px] text-base transition-all"
+    <button
+      onClick={toggle}
+      title="Сменить тему"
+      className="w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] flex items-center justify-center rounded-[8px] transition-all"
       style={{ background: 'var(--glass)', border: '1px solid var(--border)', color: 'var(--muted)' }}
       onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.borderColor = 'var(--bord2)'; }}
       onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}>
-      {dark ? '☽' : '☀'}
+      {dark ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="4" />
+          <line x1="12" y1="2" x2="12" y2="5" />
+          <line x1="12" y1="19" x2="12" y2="22" />
+          <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" />
+          <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" />
+          <line x1="2" y1="12" x2="5" y2="12" />
+          <line x1="19" y1="12" x2="22" y2="12" />
+          <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" />
+          <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" />
+        </svg>
+      )}
     </button>
   );
 }
