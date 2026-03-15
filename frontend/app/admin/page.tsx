@@ -242,9 +242,27 @@ function MessagesTab({ msgs }: any) {
 
 function GalleryTab() {
   const [items, setItems] = useState<any[]>([]);
-  const [url, setUrl] = useState(''); const [label, setLabel] = useState('');
-  useEffect(()=>{ galleryApi.getAll().then(setItems).catch(()=>{}); },[]);
-  const addUrl = async () => { if (!url) return; await galleryApi.addUrl(label||'Photo', url); galleryApi.getAll().then(setItems).catch(()=>{}); setUrl(''); setLabel(''); };
+  const [url, setUrl] = useState('');
+  const [label, setLabel] = useState('');
+
+  useEffect(() => {
+    galleryApi
+      .getAll()
+      .then((res: any) => setItems(res as any[]))
+      .catch(() => {});
+  }, []);
+
+  const addUrl = async () => {
+    if (!url) return;
+    await galleryApi.addUrl(label || 'Photo', url);
+    galleryApi
+      .getAll()
+      .then((res: any) => setItems(res as any[]))
+      .catch(() => {});
+    setUrl('');
+    setLabel('');
+  };
+
   return (
     <div>
       <h2 className="font-syne font-bold text-[1.45rem] mb-5">Галерея</h2>
