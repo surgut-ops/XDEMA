@@ -1,8 +1,11 @@
 // lib/api.ts
 import axios from 'axios';
 
-const baseURL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api')
+let baseURL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api')
   .replace(/^http:\/\//i, process.env.NODE_ENV === 'production' ? 'https://' : 'http://');
+if (process.env.NODE_ENV === 'production' && !baseURL.endsWith('/api')) {
+  baseURL = baseURL.replace(/\/?$/, '') + '/api';
+}
 
 const api = axios.create({
   baseURL,

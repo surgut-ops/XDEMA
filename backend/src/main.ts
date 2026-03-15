@@ -6,10 +6,22 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // CORS
+  // CORS — несколько разрешённых origin, запросы без origin (Postman и т.д.) пропускаем
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      const allowed = [
+        process.env.FRONTEND_URL,
+        'https://xdema.vercel.app',
+        'http://localhost:3000',
+      ].filter(Boolean) as string[];
+
+      if (!origin) return callback(null, true);
+      if (allowed.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Global validation

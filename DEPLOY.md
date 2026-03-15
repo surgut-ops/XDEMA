@@ -14,6 +14,8 @@
 
 После этого билд будет запускаться из `frontend/`, и Next.js определится корректно.
 
+**Важно:** В **Environment Variables** задай **`NEXT_PUBLIC_API_URL`** = **`https://xdema-production.up.railway.app/api`** (обязательно с `/api` в конце). Иначе запросы пойдут на `/gallery`, `/courses` вместо `/api/gallery`, `/api/courses` и будут 502.
+
 ---
 
 ## Railway (backend XDEMA)
@@ -40,7 +42,9 @@
 Если при Root Directory = `backend` и Dockerfile path = `Dockerfile` сборка всё равно падает с **«dist/main.js missing»**, попробуй **Вариант Б**: Root Directory оставь **пустым**, в **Dockerfile Path** укажи **`Dockerfile.backend`** и сделай Redeploy (в корне репо есть `railway.json` с этим путём).
 
 Убедись, что:
-- В **Variables** у XDEMA заданы минимум: `DATABASE_URL` (от PostgreSQL в Railway), `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `FRONTEND_URL`, `BACKEND_URL`.
+- **Start Command пустой.** В **Settings** → **Deploy** → **Start Command** поле должно быть **пустым**. Иначе Railway запускает указанную команду (например `node dist/main`) вместо `CMD ["sh", "start.sh"]` из Dockerfile — тогда не выполняются `prisma db push` и сид, и появляется ошибка «The table 'public.SiteSetting' does not exist». Очисти поле → Save → Redeploy.
+- В **Variables** у XDEMA заданы минимум: `DATABASE_URL` (от PostgreSQL в Railway), `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, **`FRONTEND_URL`** = **`https://xdema.vercel.app`** (без слэша в конце — иначе CORS блокирует запросы с Vercel), `BACKEND_URL`.
+- **Не задавай `PORT` пустой строкой.** Ошибка «PORT variable must be an integer between 0 and 65535» возникает, если в Variables у XDEMA переменная `PORT` пустая. Либо удали `PORT` (Railway сам подставит порт), либо задай число, например `3001`.
 - **Healthcheck Path:** `/api/settings`.
 
 Подробный список переменных и что обязательно: см. **[ENV_KEYS.md](./ENV_KEYS.md)**.
