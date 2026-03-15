@@ -17,6 +17,7 @@ COPY . .
 RUN npm install
 RUN npx prisma generate
 RUN npm run build
+RUN test -f dist/main.js || (echo "NestJS build did not produce dist/main.js. Check that Root Directory is backend and Dockerfile path is Dockerfile." && exit 1)
 
 # Продакшен: только собранное приложение и зависимости
 FROM base AS runner

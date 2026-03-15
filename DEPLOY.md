@@ -37,6 +37,8 @@
 
 Важно: при пустом Root Directory путь **`/backend/Dockerfile`** даёт ошибку «package.json not found» — в этом случае нужен **`Dockerfile.backend`**.
 
+Если при Root Directory = `backend` и Dockerfile path = `Dockerfile` сборка всё равно падает с **«dist/main.js missing»**, попробуй **Вариант Б**: Root Directory оставь **пустым**, в **Dockerfile Path** укажи **`Dockerfile.backend`** и сделай Redeploy (в корне репо есть `railway.json` с этим путём).
+
 Убедись, что:
 - В **Variables** у XDEMA заданы минимум: `DATABASE_URL` (от PostgreSQL в Railway), `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `FRONTEND_URL`, `BACKEND_URL`.
 - **Healthcheck Path:** `/api/settings`.
