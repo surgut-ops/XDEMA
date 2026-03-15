@@ -17,5 +17,7 @@
     "noImplicitAny": false,
     "noEmitOnError": false,
     "strict": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "prisma", "test", "**/*.spec.ts"]
 }
