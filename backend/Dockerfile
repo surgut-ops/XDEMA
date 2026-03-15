@@ -1,18 +1,13 @@
-# XDEMA Backend — одноэтапная сборка (NestJS + Prisma)
-FROM node:18-bullseye-slim
-
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl ca-certificates python3 build-essential \
-  && rm -rf /var/lib/apt/lists/*
-
+FROM node:18-alpine
 WORKDIR /app
-
-COPY package.json package-lock.json* ./
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+COPY prisma ./prisma/
 RUN npm install
-
-COPY . .
-RUN npx prisma generate && npm run build
-RUN npm prune --production
-
+RUN npx prisma generate
+COPY src ./src
+RUN npm run build
+RUN ls -la dist/
 EXPOSE 3001
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/main"]

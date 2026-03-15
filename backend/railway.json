@@ -5,9 +5,9 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "npm run start:prod",
+    "startCommand": "node dist/main",
     "healthcheckPath": "/api/settings",
-    "healthcheckTimeout": 60,
+    "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }
