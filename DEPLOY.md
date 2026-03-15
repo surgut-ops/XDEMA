@@ -18,18 +18,25 @@
 
 ## Railway (backend XDEMA)
 
-**Ошибки «Cannot find module /app/dist/main»** и **«healthcheck failed»** возникают, когда Railway собирает не backend (NestJS), а frontend (Next.js) — в Build Logs при этом видно `> next build`. Тогда в образе нет `dist/main.js`, и старт падает. Если в Deploy Logs видно `Cannot find module '/app/dist/main'` — проверь, что у сервиса XDEMA в Railway задан **Root Directory: backend** и сделай Redeploy.
+**Ошибки «dist/main.js missing»** и **«> next build» в Build Logs** — значит, Docker-сборка идёт из корня репо (собирается фронт), а не из папки `backend`. Нужно либо задать контекст backend, либо использовать корневой Dockerfile для бэкенда.
 
-### Что сделать
+### Вариант А: Root Directory = backend (рекомендуется)
 
-1. Открой проект на Railway, выбери сервис **XDEMA** (backend).
-2. Зайди в **Settings** → **Source**.
-3. В поле **Root Directory** укажи: **`backend`** (без слэша в начале). Сохрани.
-4. В корне папки `backend` в репозитории лежит **Dockerfile** — Railway его подхватит и будет собирать образ через Docker (NestJS), а не Nixpacks. Запусти **Redeploy**.
+1. Открой проект на Railway → сервис **XDEMA** → **Settings** → **Source**.
+2. **Root Directory:** укажи **`backend`** (без слэша). Сохрани.
+3. Если есть поле **Dockerfile path** / **Docker file:** укажи **`Dockerfile`** (не `backend/Dockerfile`), чтобы контекст сборки был папка `backend`.
+4. Запусти **Redeploy**.
+
+### Вариант Б: сборка из корня репо
+
+Если после Варианта А в Build Logs по-прежнему видно `> next build` или падает проверка `dist/main.js`:
+
+1. В **Settings** → **Source** для XDEMA поставь **Root Directory** в **пусто** (корень репо).
+2. В поле **Dockerfile path** укажи: **`Dockerfile.backend`** (в корне репо лежит файл, который копирует только `backend/` и собирает NestJS).
+3. Сохрани и сделай **Redeploy**.
 
 Убедись, что:
-- **Root Directory** именно `backend` (не `/backend` и не пусто).
-- В **Variables** у XDEMA заданы минимум: `DATABASE_URL` (от сервиса PostgreSQL в Railway, не localhost), `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `FRONTEND_URL` (URL твоего фронта на Vercel), `BACKEND_URL` (URL самого бэкенда на Railway после Generate domain).
-- **Healthcheck Path:** `/api/settings` (по умолчанию из `backend/railway.json`).
+- В **Variables** у XDEMA заданы минимум: `DATABASE_URL` (от PostgreSQL в Railway), `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `FRONTEND_URL`, `BACKEND_URL`.
+- **Healthcheck Path:** `/api/settings`.
 
 Подробный список переменных и что обязательно: см. **[ENV_KEYS.md](./ENV_KEYS.md)**.

@@ -1,0 +1,28 @@
+# Сборка XDEMA backend из корня репо (когда Railway не использует backend как Root Directory).
+# Контекст = корень репо: копируем только backend и собираем NestJS.
+FROM node:18-bullseye AS base
+WORKDIR /app
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    openssl ca-certificates python3 build-essential \
+  && rm -rf /var/lib/apt/lists/*
+
+FROM base AS builder
+COPY backend/package.json backend/package-lock.json* ./
+COPY backend/ ./
+RUN npm install
+RUN npx prisma generate
+RUN npm run build
+
+FROM base AS runner
+ENV NODE_ENV=production
+COPY backend/package.json backend/package-lock.json* ./
+COPY backend/prisma ./prisma
+RUN npm install --omit=dev
+COPY --from=builder /app/dist ./dist
+RUN test -f dist/main.js || (echo "ERROR: dist/main.js missing." && exit 1)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+EXPOSE 3001
+CMD ["node", "dist/main.js"]
