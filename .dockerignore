@@ -1,0 +1,12 @@
+# При сборке из корня (Dockerfile.backend) не отправлять лишнее в контекст
+.git
+.gitignore
+*.md
+.env
+.env.*
+frontend/node_modules
+frontend/.next
+backend/node_modules
+backend/dist
+*.log
+.DS_Store

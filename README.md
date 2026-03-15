@@ -37,7 +37,7 @@ npm run dev         # → http://localhost:3000
 
 ## Деплой
 
-> **Важно:** если деплой падает с «No Next.js version» (Vercel) или «Cannot find module /app/dist/main» (Railway), проверь **Root Directory** в настройках проекта. Подробно: см. **[DEPLOY.md](./DEPLOY.md)**.
+> **Важно:** при деплое на Railway укажи либо Root Directory = `backend` и Dockerfile path = `Dockerfile`, либо Root Directory пусто и Dockerfile path = `Dockerfile.backend`. Иначе будет «package.json not found» или «dist/main.js missing». Подробно: **[DEPLOY.md](./DEPLOY.md)**.
 
 ### Frontend → Vercel
 - В настройках проекта Vercel укажи **Root Directory: `frontend`** (Settings → General).

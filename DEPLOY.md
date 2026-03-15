@@ -18,22 +18,24 @@
 
 ## Railway (backend XDEMA)
 
-**Ошибки «dist/main.js missing»** и **«> next build» в Build Logs** — значит, Docker-сборка идёт из корня репо (собирается фронт), а не из папки `backend`. Нужно либо задать контекст backend, либо использовать корневой Dockerfile для бэкенда.
+Ошибки в логах:
+- **«/package.json» not found** — в контекст попал корень репо, а используется `backend/Dockerfile`, который ждёт `package.json` в текущей папке. Нужно либо Root Directory = `backend` и путь к Dockerfile = `Dockerfile`, либо Root Directory пусто и путь = `Dockerfile.backend`.
+- **«dist/main.js missing»** / **«> next build»** — собирается фронт вместо бэкенда; исправляется правильной парой Root Directory + Dockerfile path.
 
-### Вариант А: Root Directory = backend (рекомендуется)
+### Вариант А: Root Directory = backend
 
-1. Открой проект на Railway → сервис **XDEMA** → **Settings** → **Source**.
-2. **Root Directory:** укажи **`backend`** (без слэша). Сохрани.
-3. Если есть поле **Dockerfile path** / **Docker file:** укажи **`Dockerfile`** (не `backend/Dockerfile`), чтобы контекст сборки был папка `backend`.
-4. Запусти **Redeploy**.
+1. **Settings** → **Source** для сервиса **XDEMA**.
+2. **Root Directory:** **`backend`** (без слэша в начале, не `/backend`).
+3. **Dockerfile Path:** **`Dockerfile`** (относительно Root Directory, не `/backend/Dockerfile`).
+4. Сохрани → **Redeploy**.
 
-### Вариант Б: сборка из корня репо
+### Вариант Б: сборка из корня (если А не сработал)
 
-Если после Варианта А в Build Logs по-прежнему видно `> next build` или падает проверка `dist/main.js`:
+1. **Root Directory:** оставь **пустым**.
+2. **Dockerfile Path:** укажи **`Dockerfile.backend`** (именно этот файл в корне репо; не `backend/Dockerfile`).
+3. Сохрани → **Redeploy**.
 
-1. В **Settings** → **Source** для XDEMA поставь **Root Directory** в **пусто** (корень репо).
-2. В поле **Dockerfile path** укажи: **`Dockerfile.backend`** (в корне репо лежит файл, который копирует только `backend/` и собирает NestJS).
-3. Сохрани и сделай **Redeploy**.
+Важно: при пустом Root Directory путь **`/backend/Dockerfile`** даёт ошибку «package.json not found» — в этом случае нужен **`Dockerfile.backend`**.
 
 Убедись, что:
 - В **Variables** у XDEMA заданы минимум: `DATABASE_URL` (от PostgreSQL в Railway), `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `FRONTEND_URL`, `BACKEND_URL`.
