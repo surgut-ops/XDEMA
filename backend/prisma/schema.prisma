@@ -1,0 +1,208 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ══════════════════════════════════════════
+//  USERS
+// ══════════════════════════════════════════
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  courses       UserCourse[]
+  orders        Order[]
+  notifications UserNotification[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ══════════════════════════════════════════
+//  COURSES
+// ══════════════════════════════════════════
+model Course {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique  // "basic" | "middle" | "premium"
+  title       String
+  tagline     String?
+  fullDesc    String?  @db.Text
+  who         String?
+  price       Int
+  nameSize    Float    @default(1.6)
+  descSize    Float    @default(0.82)
+  cardFont    String   @default("syne")
+  program     String[]
+  features    String[]
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  materials   CourseMaterial[]
+  orders      Order[]
+  userCourses UserCourse[]
+}
+
+model CourseMaterial {
+  id        Int      @id @default(autoincrement())
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title     String
+  type      MaterialType
+  url       String?
+  content   String?  @db.Text
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+enum MaterialType {
+  VIDEO
+  PDF
+  TEXT
+  LINK
+}
+
+model UserCourse {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id])
+  progress  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
+
+// ══════════════════════════════════════════
+//  ORDERS
+// ══════════════════════════════════════════
+model Order {
+  id            Int         @id @default(autoincrement())
+  type          OrderType
+  status        OrderStatus @default(PENDING)
+  clientName    String
+  clientEmail   String
+  clientPhone   String?
+  amount        Int?
+  details       String?     @db.Text
+  stripeSession String?     @unique
+  userId        Int?
+  user          User?       @relation(fields: [userId], references: [id])
+  courseId      Int?
+  course        Course?     @relation(fields: [courseId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum OrderType {
+  COURSE
+  DJ_BOOKING
+  CORPORATE
+  QR_TRACK
+  QR_TIP
+  QR_MESSAGE
+  QR_DANCE
+  REQUEST
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ══════════════════════════════════════════
+//  REVIEWS
+// ══════════════════════════════════════════
+model Review {
+  id        Int      @id @default(autoincrement())
+  name      String
+  text      String   @db.Text
+  rating    Int
+  event     String?
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ══════════════════════════════════════════
+//  GALLERY
+// ══════════════════════════════════════════
+model GalleryItem {
+  id        Int      @id @default(autoincrement())
+  label     String
+  imageUrl  String
+  colSpan   Int      @default(1)
+  height    Int      @default(175)
+  sortOrder Int      @default(0)
+  color     String?
+  createdAt DateTime @default(now())
+}
+
+// ══════════════════════════════════════════
+//  SITE SETTINGS (key/value JSON store)
+// ══════════════════════════════════════════
+model SiteSetting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String   @db.Text  // JSON string
+  updatedAt DateTime @updatedAt
+}
+// Keys used:
+// "hero"         → { title, sub1, sub2, titleSize, subSize }
+// "contacts"     → { phone, email, city, insta, tg, yt, vk }
+// "heroBg"       → { type: "preset"|"image", id?, url?, overlay? }
+// "blocks"       → { training, services, gallery, reviews, faq, contacts }
+// "colors"       → { hc1, hc2, hc3, ac1, ac2 }
+// "popupSettings"→ { tag, title, text, img, imgH, btnText, action, delay, enabled }
+// "djPrices"     → [ { n, p }, ... ]
+// "qrPrices"     → { track, dance, tip, msg }
+// "qrCards"      → { track: { t, s }, dance: { t, s }, ... }
+// "gallSettings" → { cols, h }
+// "qrPage"       → { title, sub, linkUrl }
+
+// ══════════════════════════════════════════
+//  NOTIFICATIONS (admin → user)
+// ══════════════════════════════════════════
+model UserNotification {
+  id           Int      @id @default(autoincrement())
+  title        String
+  text         String   @db.Text
+  imageUrl     String?
+  imageHeight  Int      @default(160)
+  targetAll    Boolean  @default(true)
+  targetCourse String?  // "basic" | "middle" | "premium"
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
+// ══════════════════════════════════════════
+//  MESSAGES (contact forms)
+// ══════════════════════════════════════════
+model Message {
+  id        Int      @id @default(autoincrement())
+  fromName  String
+  contact   String
+  text      String?  @db.Text
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

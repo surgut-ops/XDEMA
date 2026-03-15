@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XDEMA — DJ & Обучение</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07070f;
+  --bg2: #0d0d1a;
+  --cyan: #00e5ff;
+  --pink: #ff2d78;
+  --gold: #ffd600;
+  --text: #e8e8f0;
+  --muted: #7a7a99;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.09);
+  --card: rgba(13,13,28,0.85);
+  --radius: 16px;
+  --font-head: 'Bebas Neue', sans-serif;
+  --font-body: 'Outfit', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* ── NOISE OVERLAY ── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999; opacity:.5;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--cyan); border-radius:3px; }
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1rem 3rem;
+  background: rgba(7,7,15,0.7);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  transition: padding .3s;
+}
+.nav-logo {
+  font-family: var(--font-head);
+  font-size: 2.2rem;
+  letter-spacing: .15em;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor:pointer;
+  text-decoration:none;
+}
+.nav-links { display:flex; gap:2rem; align-items:center; }
+.nav-links a {
+  color: var(--muted);
+  text-decoration:none;
+  font-size:.85rem;
+  font-weight:500;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  transition: color .2s;
+  cursor:pointer;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--cyan); }
+.nav-links .btn-nav {
+  background: linear-gradient(135deg, var(--cyan), #0099bb);
+  color: var(--bg) !important;
+  padding:.5rem 1.2rem;
+  border-radius:8px;
+  font-weight:700;
+}
+.nav-links .btn-nav:hover { opacity:.9; }
+.burger { display:none; background:none; border:none; cursor:pointer; padding:.5rem; }
+.burger span { display:block; width:26px; height:2px; background:var(--text); margin:5px 0; transition:.3s; }
+
+/* ── PAGES ── */
+.page { display:none; padding-top:80px; animation: fadeIn .4s ease; }
+.page.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative; text-align:center; padding:2rem;
+  overflow:hidden;
+  padding-top:80px;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,229,255,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,45,120,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 20%, rgba(255,214,0,.04) 0%, transparent 60%);
+}
+.dj-console {
+  width: min(420px, 90vw);
+  height: min(320px, 70vw);
+  margin-bottom: 2.5rem;
+  position:relative;
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+.dj-console svg { width:100%; height:100%; filter: drop-shadow(0 0 30px rgba(0,229,255,.4)) drop-shadow(0 0 60px rgba(0,229,255,.2)); }
+
+.hero-logo {
+  font-family: var(--font-head);
+  font-size: clamp(5rem, 15vw, 11rem);
+  letter-spacing: .12em;
+  line-height:1;
+  background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  position:relative; z-index:1;
+  animation: glitch 6s infinite;
+}
+@keyframes glitch {
+  0%,94%,100%{text-shadow:none;filter:none}
+  95%{text-shadow:3px 0 var(--pink);filter:blur(.5px)}
+  97%{text-shadow:-3px 0 var(--cyan);filter:blur(.5px)}
+  99%{text-shadow:none;filter:none}
+}
+.hero-tagline {
+  font-family: var(--font-mono);
+  font-size: clamp(.8rem, 2vw, 1rem);
+  color: var(--cyan);
+  letter-spacing: .25em;
+  text-transform:uppercase;
+  margin: .8rem 0 2.5rem;
+  opacity:.8;
+}
+.hero-btns { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; }
+
+/* ── BUTTONS ── */
+.btn {
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.75rem 1.8rem;
+  border-radius:10px;
+  font-family: var(--font-body);
+  font-size:.9rem;
+  font-weight:600;
+  letter-spacing:.05em;
+  cursor:pointer;
+  border:none;
+  transition: all .25s;
+  text-decoration:none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan), #0077aa);
+  color: var(--bg);
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,229,255,.4); }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--glass-border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color:var(--cyan); color:var(--cyan); }
+.btn-pink {
+  background: linear-gradient(135deg, var(--pink), #aa0044);
+  color:#fff;
+}
+.btn-pink:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(255,45,120,.4); }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), #cc9900);
+  color: var(--bg);
+}
+.btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(255,214,0,.4); }
+.btn-ghost {
+  background: var(--glass);
+  border: 1.5px solid var(--glass-border);
+  color: var(--text);
+  backdrop-filter:blur(8px);
+}
+.btn-ghost:hover { background:rgba(255,255,255,.07); }
+.btn-sm { padding:.5rem 1.1rem; font-size:.8rem; border-radius:8px; }
+
+/* ── SECTIONS ── */
+.section { padding:5rem 1.5rem; max-width:1200px; margin:0 auto; }
+.section-full { padding:5rem 1.5rem; }
+.section-title {
+  font-family: var(--font-head);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  letter-spacing:.08em;
+  text-align:center;
+  margin-bottom:.5rem;
+  background: linear-gradient(135deg, #fff 30%, var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.section-sub {
+  text-align:center;
+  color: var(--muted);
+  margin-bottom:3.5rem;
+  font-size:.95rem;
+}
+.divider {
+  width:60px; height:3px;
+  background: linear-gradient(90deg, var(--cyan), var(--pink));
+  margin: 1rem auto 1.5rem;
+  border-radius:2px;
+}
+
+/* ── CARDS ── */
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  transition: transform .25s, box-shadow .25s;
+}
+.glass-card:hover { transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.4); }
+
+/* ── PRICING CARDS ── */
+.pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; }
+.pricing-card {
+  position:relative;
+  background: var(--card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding:2rem;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  overflow:hidden;
+}
+.pricing-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, var(--cyan), var(--pink));
+  transform:scaleX(0); transition:transform .3s;
+  transform-origin:left;
+}
+.pricing-card:hover::before { transform:scaleX(1); }
+.pricing-card:hover { transform:translateY(-6px); box-shadow:0 20px 50px rgba(0,0,0,.5); border-color:rgba(0,229,255,.2); }
+.pricing-card.featured {
+  border-color: rgba(0,229,255,.35);
+  background: rgba(0,229,255,.05);
+}
+.pricing-card.featured::before { transform:scaleX(1); }
+.badge {
+  display:inline-block;
+  padding:.25rem .8rem;
+  border-radius:20px;
+  font-size:.7rem;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  margin-bottom:1rem;
+}
+.badge-cyan { background:rgba(0,229,255,.15); color:var(--cyan); }
+.badge-pink { background:rgba(255,45,120,.15); color:var(--pink); }
+.badge-gold { background:rgba(255,214,0,.15); color:var(--gold); }
+.pricing-name {
+  font-family: var(--font-head);
+  font-size:1.8rem;
+  letter-spacing:.07em;
+  margin-bottom:.5rem;
+}
+.pricing-price {
+  font-family: var(--font-mono);
+  font-size:2.2rem;
+  color:var(--cyan);
+  margin: .8rem 0;
+}
+.pricing-price span { font-size:1rem; color:var(--muted); }
+.pricing-desc { color:var(--muted); font-size:.9rem; margin-bottom:1.2rem; line-height:1.6; }
+.pricing-features { list-style:none; margin-bottom:1.8rem; }
+.pricing-features li {
+  padding:.4rem 0;
+  font-size:.88rem;
+  color:var(--text);
+  display:flex; align-items:center; gap:.6rem;
+  border-bottom:1px solid var(--glass-border);
+}
+.pricing-features li:last-child { border:none; }
+.pricing-features li::before { content:'✦'; color:var(--cyan); font-size:.6rem; flex-shrink:0; }
+
+/* ── SERVICES GRID ── */
+.services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5rem; }
+.service-card {
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:2rem;
+  transition:.25s;
+}
+.service-card:hover { border-color:rgba(255,45,120,.3); transform:translateY(-4px); }
+.service-icon { font-size:2.5rem; margin-bottom:1rem; }
+.service-name { font-family:var(--font-head); font-size:1.4rem; letter-spacing:.07em; margin-bottom:.5rem; }
+.service-desc { color:var(--muted); font-size:.88rem; line-height:1.6; }
+
+/* ── PRICELIST ── */
+.price-table { width:100%; border-collapse:collapse; margin:1.5rem 0; }
+.price-table tr { border-bottom:1px solid var(--glass-border); }
+.price-table tr:last-child { border:none; }
+.price-table td { padding:1rem 0; font-size:.9rem; }
+.price-table td:last-child { text-align:right; font-family:var(--font-mono); color:var(--cyan); font-weight:700; }
+
+/* ── GALLERY ── */
+.gallery-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1rem;
+}
+.gallery-item {
+  aspect-ratio:4/3;
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  cursor:pointer;
+  transition:.25s;
+}
+.gallery-item:hover { transform:scale(1.02); }
+.gallery-item:nth-child(3n) { grid-column:span 2; aspect-ratio:2/1; }
+.gallery-placeholder {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:.5rem;
+  background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(255,45,120,.06));
+  color:var(--muted); font-size:.8rem;
+}
+.gallery-placeholder .icon { font-size:2rem; }
+
+/* ── REVIEWS ── */
+.reviews-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; margin-bottom:3rem; }
+.review-card {
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+}
+.review-header { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
+.review-avatar {
+  width:44px; height:44px; border-radius:50%;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-head); font-size:1.2rem; color:var(--bg);
+  flex-shrink:0;
+}
+.review-name { font-weight:600; font-size:.9rem; }
+.review-date { font-size:.75rem; color:var(--muted); }
+.stars { color:var(--gold); font-size:1rem; letter-spacing:.1em; }
+.review-text { font-size:.88rem; color:var(--muted); line-height:1.6; margin-top:.7rem; }
+
+/* ── REVIEW FORM ── */
+.review-form {
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:2rem;
+  max-width:600px; margin:0 auto;
+}
+.form-title { font-family:var(--font-head); font-size:1.8rem; letter-spacing:.07em; margin-bottom:1.5rem; }
+.form-group { margin-bottom:1.2rem; }
+.form-group label { display:block; font-size:.8rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:.5rem; }
+.form-control {
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--glass-border);
+  border-radius:10px;
+  padding:.75rem 1rem;
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:.9rem;
+  transition:border-color .2s;
+  outline:none;
+}
+.form-control:focus { border-color:var(--cyan); }
+textarea.form-control { resize:vertical; min-height:100px; }
+.star-rating { display:flex; gap:.5rem; margin-top:.4rem; }
+.star-btn {
+  background:none; border:none; cursor:pointer;
+  font-size:1.6rem; color:var(--muted); transition:color .15s, transform .15s;
+  line-height:1;
+}
+.star-btn:hover, .star-btn.active { color:var(--gold); transform:scale(1.2); }
+
+/* ── FAQ ── */
+.faq-list { max-width:760px; margin:0 auto; }
+.faq-item {
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:12px;
+  margin-bottom:1rem;
+  overflow:hidden;
+}
+.faq-q {
+  width:100%; text-align:left;
+  background:none; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.2rem 1.5rem;
+  color:var(--text); font-family:var(--font-body); font-size:.95rem; font-weight:500;
+  transition:color .2s;
+}
+.faq-q:hover { color:var(--cyan); }
+.faq-q .icon { transition:transform .3s; font-style:normal; flex-shrink:0; }
+.faq-q.open .icon { transform:rotate(45deg); }
+.faq-a { display:none; padding:0 1.5rem 1.2rem; color:var(--muted); font-size:.88rem; line-height:1.7; }
+.faq-a.open { display:block; }
+
+/* ── LIVE QR PAGE ── */
+.qr-hero {
+  text-align:center;
+  padding:3rem 1.5rem;
+  background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(255,214,0,.07), transparent);
+}
+.qr-title {
+  font-family:var(--font-head);
+  font-size:clamp(3rem,8vw,6rem);
+  letter-spacing:.12em;
+  background:linear-gradient(135deg, var(--gold), var(--pink));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.qr-actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; margin-top:3rem; }
+.qr-card {
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:2rem;
+  text-align:center;
+  cursor:pointer;
+  transition:.25s;
+  position:relative;
+  overflow:hidden;
+}
+.qr-card:hover { transform:translateY(-5px); border-color:rgba(255,214,0,.3); }
+.qr-card-icon { font-size:3rem; margin-bottom:1rem; }
+.qr-card-title { font-family:var(--font-head); font-size:1.5rem; letter-spacing:.07em; margin-bottom:.4rem; }
+.qr-card-desc { color:var(--muted); font-size:.85rem; line-height:1.5; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(6px);
+  align-items:center; justify-content:center; padding:1.5rem;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--bg2);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:2.5rem;
+  width:100%; max-width:480px;
+  position:relative;
+  animation: modalIn .3s ease;
+}
+@keyframes modalIn { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:none} }
+.modal-close {
+  position:absolute; top:1rem; right:1rem;
+  background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.4rem;
+  transition:color .2s;
+}
+.modal-close:hover { color:var(--text); }
+.modal-title { font-family:var(--font-head); font-size:2rem; letter-spacing:.07em; margin-bottom:.4rem; }
+.modal-sub { color:var(--muted); font-size:.85rem; margin-bottom:1.8rem; }
+.payment-options { display:flex; gap:.8rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+.pay-opt {
+  flex:1; min-width:120px;
+  background:var(--glass);
+  border:1.5px solid var(--glass-border);
+  border-radius:10px;
+  padding:.8rem;
+  text-align:center;
+  cursor:pointer;
+  transition:.2s;
+  font-size:.85rem;
+}
+.pay-opt:hover, .pay-opt.selected { border-color:var(--cyan); background:rgba(0,229,255,.08); color:var(--cyan); }
+.pay-icon { font-size:1.8rem; display:block; margin-bottom:.3rem; }
+
+/* ── ADMIN ── */
+.admin-login {
+  max-width:400px; margin:3rem auto;
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:2.5rem;
+  text-align:center;
+}
+.admin-panel { max-width:1100px; margin:0 auto; padding:1.5rem; }
+.admin-nav {
+  display:flex; gap:.7rem; flex-wrap:wrap;
+  margin-bottom:2rem;
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:14px;
+  padding:.8rem;
+}
+.admin-tab {
+  background:none; border:none; cursor:pointer;
+  padding:.55rem 1.1rem;
+  border-radius:10px;
+  font-family:var(--font-body); font-size:.85rem; font-weight:500;
+  color:var(--muted); transition:.2s;
+}
+.admin-tab:hover { color:var(--text); }
+.admin-tab.active { background:rgba(0,229,255,.12); color:var(--cyan); }
+.admin-section { display:none; animation:fadeIn .3s; }
+.admin-section.active { display:block; }
+.admin-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:2rem; }
+.stat-card {
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:12px;
+  padding:1.5rem;
+  text-align:center;
+}
+.stat-num { font-family:var(--font-head); font-size:2.5rem; color:var(--cyan); }
+.stat-label { font-size:.8rem; color:var(--muted); margin-top:.3rem; }
+.admin-table { width:100%; border-collapse:collapse; }
+.admin-table th {
+  text-align:left; padding:.7rem 1rem;
+  font-size:.75rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase;
+  border-bottom:1px solid var(--glass-border);
+}
+.admin-table td { padding:.8rem 1rem; font-size:.87rem; border-bottom:1px solid rgba(255,255,255,.04); }
+.admin-table tr:last-child td { border:none; }
+.tag {
+  display:inline-block; padding:.2rem .7rem; border-radius:20px;
+  font-size:.72rem; font-weight:600;
+}
+.tag-green { background:rgba(0,255,120,.12); color:#00e874; }
+.tag-orange { background:rgba(255,165,0,.12); color:#ffa500; }
+.tag-red { background:rgba(255,45,120,.12); color:var(--pink); }
+.admin-card {
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+  margin-bottom:1.5rem;
+}
+.admin-card h3 { font-family:var(--font-head); font-size:1.3rem; letter-spacing:.07em; margin-bottom:1rem; }
+.price-edit { display:flex; align-items:center; gap:1rem; padding:.7rem 0; border-bottom:1px solid var(--glass-border); }
+.price-edit:last-child { border:none; }
+.price-edit label { flex:1; font-size:.9rem; }
+.price-input {
+  width:130px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--glass-border);
+  border-radius:8px;
+  padding:.5rem .8rem;
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:.9rem;
+  outline:none;
+  transition:border-color .2s;
+}
+.price-input:focus { border-color:var(--cyan); }
+
+/* ── CONTACT ── */
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:3rem; max-width:900px; margin:0 auto; }
+.contact-info h3 { font-family:var(--font-head); font-size:1.6rem; letter-spacing:.07em; margin-bottom:1.5rem; }
+.contact-item { display:flex; gap:1rem; margin-bottom:1.2rem; align-items:flex-start; }
+.contact-icon { font-size:1.4rem; flex-shrink:0; margin-top:.1rem; }
+.contact-label { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+.contact-val { font-size:.95rem; margin-top:.2rem; }
+.social-links { display:flex; gap:.8rem; margin-top:1.5rem; flex-wrap:wrap; }
+.social-btn {
+  display:flex; align-items:center; gap:.5rem;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:10px;
+  padding:.6rem 1rem;
+  color:var(--text); text-decoration:none; font-size:.85rem;
+  transition:.2s;
+}
+.social-btn:hover { border-color:var(--cyan); color:var(--cyan); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:2rem; right:2rem; z-index:9000;
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:12px;
+  padding:1rem 1.5rem;
+  font-size:.9rem;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  transform:translateY(100px); opacity:0;
+  transition:.3s;
+  max-width:300px;
+}
+.toast.show { transform:none; opacity:1; }
+.toast-success { border-color:rgba(0,232,116,.3); }
+.toast-error { border-color:rgba(255,45,120,.3); }
+
+/* ── FOOTER ── */
+footer {
+  border-top:1px solid var(--glass-border);
+  padding:2.5rem 3rem;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:1.5rem;
+  margin-top:4rem;
+}
+.footer-logo {
+  font-family:var(--font-head);
+  font-size:1.5rem; letter-spacing:.15em;
+  background:linear-gradient(135deg,var(--cyan),var(--pink));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.footer-text { font-size:.8rem; color:var(--muted); }
+.footer-links { display:flex; gap:1.5rem; }
+.footer-links a { color:var(--muted); text-decoration:none; font-size:.8rem; transition:color .2s; cursor:pointer; }
+.footer-links a:hover { color:var(--cyan); }
+
+/* ── COURSE DETAIL ── */
+.course-hero {
+  background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(255,45,120,.05));
+  border-bottom:1px solid var(--glass-border);
+  padding:3.5rem 1.5rem 2.5rem;
+  text-align:center;
+}
+.course-title { font-family:var(--font-head); font-size:clamp(2.5rem,6vw,4.5rem); letter-spacing:.1em; margin-bottom:.5rem; }
+.course-grid { display:grid; grid-template-columns:2fr 1fr; gap:2rem; max-width:1000px; margin:2rem auto 0; }
+.program-list { list-style:none; }
+.program-list li {
+  padding:.7rem 0; border-bottom:1px solid var(--glass-border);
+  display:flex; align-items:center; gap:.7rem;
+  font-size:.9rem;
+}
+.program-list li::before {
+  content: attr(data-num);
+  background:linear-gradient(135deg,var(--cyan),var(--pink));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  font-family:var(--font-mono); font-size:.8rem; font-weight:700;
+  flex-shrink:0; width:1.5rem;
+}
+.sticky-buy {
+  position:sticky; top:90px;
+  background:var(--card);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:1.8rem;
+  height:fit-content;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav { padding:.9rem 1.2rem; }
+  .nav-links { display:none; flex-direction:column; position:fixed; inset:0; top:60px; background:rgba(7,7,15,.97); padding:2rem; gap:1.5rem; z-index:400; }
+  .nav-links.open { display:flex; }
+  .burger { display:block; }
+  .contact-grid { grid-template-columns:1fr; }
+  .course-grid { grid-template-columns:1fr; }
+  .sticky-buy { position:static; }
+  footer { flex-direction:column; text-align:center; padding:2rem 1.5rem; }
+  .gallery-item:nth-child(3n) { grid-column:span 1; aspect-ratio:4/3; }
+  .hero-btns { gap:.7rem; }
+}
+
+/* ── STRIPE-LIKE ANIMATED BG LINES ── */
+.lines {
+  position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;
+}
+.line {
+  position:absolute; top:0; bottom:0; width:1px;
+  background:linear-gradient(180deg, transparent, rgba(0,229,255,.06) 40%, rgba(255,45,120,.04) 60%, transparent);
+  animation: moveLine 8s linear infinite;
+}
+.line:nth-child(1){ left:15%; animation-duration:9s; }
+.line:nth-child(2){ left:35%; animation-duration:12s; animation-delay:-3s; opacity:.5; }
+.line:nth-child(3){ left:55%; animation-duration:7s; animation-delay:-1s; }
+.line:nth-child(4){ left:75%; animation-duration:10s; animation-delay:-5s; opacity:.4; }
+.line:nth-child(5){ left:90%; animation-duration:8s; animation-delay:-7s; opacity:.3; }
+@keyframes moveLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(100%)} }
+
+/* page content z-index */
+.page { position:relative; z-index:1; }
+
+/* ── CURSOR GLOW ── */
+.cursor-glow {
+  pointer-events:none;
+  position:fixed; z-index:9998;
+  width:300px; height:300px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(0,229,255,.05) 0%, transparent 70%);
+  transform:translate(-50%,-50%);
+  transition: left .1s linear, top .1s linear;
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal { opacity:0; transform:translateY(30px); transition:.6s; }
+.reveal.visible { opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<!-- Cursor glow -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- BG Lines -->
+<div class="lines">
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a class="nav-logo" onclick="showPage('home')">XDEMA</a>
+  <div class="nav-links" id="navLinks">
+    <a onclick="showPage('home')">Главная</a>
+    <a onclick="showPage('training')">Обучение</a>
+    <a onclick="showPage('dj')">Заказать DJ</a>
+    <a onclick="showPage('corporate')">Корпоративы</a>
+    <a onclick="showPage('liveqr')" class="btn-nav btn btn-sm">🎵 Live QR</a>
+    <a onclick="showPage('contacts')">Контакты</a>
+  </div>
+  <button class="burger" id="burger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ────────────────── HOME ────────────────── -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+
+    <!-- 3D DJ Console SVG -->
+    <div class="dj-console">
+      <svg viewBox="0 0 420 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1a1a2e"/>
+            <stop offset="100%" stop-color="#0d0d1a"/>
+          </linearGradient>
+          <linearGradient id="gc" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#00e5ff"/>
+            <stop offset="100%" stop-color="#0077aa"/>
+          </linearGradient>
+          <radialGradient id="gv" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#00e5ff" stop-opacity=".7"/>
+            <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="gv2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff2d78" stop-opacity=".6"/>
+            <stop offset="100%" stop-color="#ff2d78" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="glow2"><feGaussianBlur stdDeviation="6"/></filter>
+        </defs>
+        <!-- Body -->
+        <rect x="30" y="80" width="360" height="200" rx="18" fill="url(#g1)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <!-- top bar -->
+        <rect x="30" y="80" width="360" height="30" rx="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <!-- LED strip -->
+        <rect x="40" y="88" width="340" height="6" rx="3" fill="url(#gc)" opacity=".7" filter="url(#glow)"/>
+
+        <!-- Left deck -->
+        <circle cx="130" cy="190" r="75" fill="rgba(255,255,255,.03)" stroke="rgba(0,229,255,.2)" stroke-width="1.5"/>
+        <circle cx="130" cy="190" r="65" fill="rgba(0,229,255,.04)" stroke="rgba(0,229,255,.15)" stroke-width="1"/>
+        <circle cx="130" cy="190" r="50" fill="rgba(255,255,255,.02)" stroke="rgba(0,229,255,.1)" stroke-width="1"/>
+        <!-- vinyl grooves -->
+        <circle cx="130" cy="190" r="62" fill="none" stroke="rgba(0,229,255,.08)" stroke-width=".5" stroke-dasharray="4 3"/>
+        <circle cx="130" cy="190" r="55" fill="none" stroke="rgba(0,229,255,.06)" stroke-width=".5" stroke-dasharray="3 4"/>
+        <circle cx="130" cy="190" r="48" fill="none" stroke="rgba(0,229,255,.05)" stroke-width=".5"/>
+        <circle cx="130" cy="190" r="42" fill="none" stroke="rgba(0,229,255,.04)" stroke-width=".5"/>
+        <!-- vinyl label -->
+        <circle cx="130" cy="190" r="18" fill="rgba(0,229,255,.12)" stroke="rgba(0,229,255,.3)" stroke-width="1.5"/>
+        <circle cx="130" cy="190" r="5" fill="rgba(0,229,255,.5)"/>
+        <!-- glow under -->
+        <circle cx="130" cy="190" r="75" fill="url(#gv)" opacity=".3"/>
+
+        <!-- Right deck -->
+        <circle cx="290" cy="190" r="75" fill="rgba(255,255,255,.03)" stroke="rgba(255,45,120,.2)" stroke-width="1.5"/>
+        <circle cx="290" cy="190" r="65" fill="rgba(255,45,120,.04)" stroke="rgba(255,45,120,.15)" stroke-width="1"/>
+        <circle cx="290" cy="190" r="50" fill="rgba(255,255,255,.02)" stroke="rgba(255,45,120,.1)" stroke-width="1"/>
+        <circle cx="290" cy="190" r="62" fill="none" stroke="rgba(255,45,120,.08)" stroke-width=".5" stroke-dasharray="4 3"/>
+        <circle cx="290" cy="190" r="55" fill="none" stroke="rgba(255,45,120,.06)" stroke-width=".5" stroke-dasharray="3 4"/>
+        <circle cx="290" cy="190" r="48" fill="none" stroke="rgba(255,45,120,.05)" stroke-width=".5"/>
+        <circle cx="290" cy="190" r="18" fill="rgba(255,45,120,.12)" stroke="rgba(255,45,120,.3)" stroke-width="1.5"/>
+        <circle cx="290" cy="190" r="5" fill="rgba(255,45,120,.5)"/>
+        <circle cx="290" cy="190" r="75" fill="url(#gv2)" opacity=".3"/>
+
+        <!-- Center mixer -->
+        <rect x="178" y="110" width="64" height="160" rx="10" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <!-- Crossfader -->
+        <rect x="183" y="230" width="54" height="6" rx="3" fill="rgba(255,255,255,.1)"/>
+        <rect x="200" y="228" width="14" height="10" rx="2" fill="url(#gc)"/>
+        <!-- Channel faders -->
+        <rect x="190" y="120" width="4" height="80" rx="2" fill="rgba(255,255,255,.08)"/>
+        <rect x="226" y="120" width="4" height="80" rx="2" fill="rgba(255,255,255,.08)"/>
+        <rect x="188" y="160" width="8" height="12" rx="2" fill="url(#gc)" opacity=".8"/>
+        <rect x="224" y="145" width="8" height="12" rx="2" fill="rgba(255,45,120,.8)"/>
+        <!-- EQ knobs -->
+        <circle cx="210" cy="125" r="6" fill="rgba(255,255,255,.1)" stroke="rgba(0,229,255,.4)" stroke-width="1.5"/>
+        <circle cx="210" cy="142" r="6" fill="rgba(255,255,255,.1)" stroke="rgba(0,229,255,.3)" stroke-width="1.5"/>
+        <circle cx="210" cy="159" r="6" fill="rgba(255,255,255,.1)" stroke="rgba(255,45,120,.3)" stroke-width="1.5"/>
+
+        <!-- Buttons bottom row -->
+        <rect x="50" y="268" width="14" height="8" rx="2" fill="rgba(0,229,255,.6)" filter="url(#glow)"/>
+        <rect x="72" y="268" width="14" height="8" rx="2" fill="rgba(0,229,255,.4)"/>
+        <rect x="94" y="268" width="14" height="8" rx="2" fill="rgba(0,229,255,.2)"/>
+        <rect x="116" y="268" width="14" height="8" rx="2" fill="rgba(255,214,0,.4)"/>
+
+        <rect x="296" y="268" width="14" height="8" rx="2" fill="rgba(255,45,120,.6)" filter="url(#glow)"/>
+        <rect x="318" y="268" width="14" height="8" rx="2" fill="rgba(255,45,120,.4)"/>
+        <rect x="340" y="268" width="14" height="8" rx="2" fill="rgba(255,45,120,.2)"/>
+        <rect x="362" y="268" width="14" height="8" rx="2" fill="rgba(255,214,0,.4)"/>
+
+        <!-- Waveform display -->
+        <rect x="50" y="250" width="80" height="14" rx="4" fill="rgba(0,0,0,.3)"/>
+        <polyline points="52,257 56,254 60,260 64,251 68,257 72,254 76,262 80,250 84,256 88,253 92,259 96,254 100,257 104,255 108,257 112,253 116,258 120,255 124,257 128,253" fill="none" stroke="rgba(0,229,255,.8)" stroke-width="1.2"/>
+        <rect x="292" y="250" width="80" height="14" rx="4" fill="rgba(0,0,0,.3)"/>
+        <polyline points="294,256 298,260 302,253 306,257 310,251 314,256 318,261 322,253 326,257 330,254 334,259 338,253 342,256 346,262 350,253 354,257 358,255 362,259 366,254 370,256" fill="none" stroke="rgba(255,45,120,.8)" stroke-width="1.2"/>
+
+        <!-- BPM -->
+        <text x="178" y="108" font-family="'Space Mono',monospace" font-size="7" fill="rgba(0,229,255,.5)" text-anchor="middle">128 BPM</text>
+
+        <!-- Headphone jack -->
+        <circle cx="210" cy="290" r="7" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+        <circle cx="210" cy="290" r="3" fill="rgba(255,255,255,.15)"/>
+
+        <!-- Logo on console -->
+        <text x="210" y="78" font-family="'Bebas Neue',sans-serif" font-size="12" fill="rgba(255,255,255,.3)" text-anchor="middle" letter-spacing="4">XDEMA</text>
+      </svg>
+    </div>
+
+    <div class="hero-logo">XDEMA</div>
+    <p class="hero-tagline">DJ · Обучение · Мероприятия</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="showPage('training')">🎓 Обучение</button>
+      <button class="btn btn-pink" onclick="showPage('dj')">🎧 Заказать DJ</button>
+      <button class="btn btn-ghost" onclick="showPage('corporate')">🏢 Корпоративы</button>
+      <button class="btn btn-gold" onclick="showPage('liveqr')">📲 Live QR</button>
+      <button class="btn btn-outline" onclick="showPage('contacts')">✉️ Контакты</button>
+    </div>
+  </div>
+
+  <!-- Pricing Section -->
+  <div class="section reveal">
+    <h2 class="section-title">Тарифы обучения</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Три уровня — от новичка до профессионала</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <span class="badge badge-cyan">Старт</span>
+        <div class="pricing-name">Базовый</div>
+        <div class="pricing-price">8 000 <span>₽ / курс</span></div>
+        <p class="pricing-desc">Идеально для тех, кто только начинает. Основы DJ-мастерства за 4 занятия.</p>
+        <ul class="pricing-features">
+          <li>4 занятия по 1.5 часа</li>
+          <li>Теория: ритм, BPM, структура трека</li>
+          <li>Практика на оборудовании</li>
+          <li>Основы сведения (beatmatching)</li>
+          <li>Доступ к учебным материалам</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%" onclick="openPayModal('Базовый курс', 8000)">Купить курс</button>
+      </div>
+      <div class="pricing-card featured">
+        <span class="badge badge-pink">Популярный</span>
+        <div class="pricing-name">Средний</div>
+        <div class="pricing-price">18 000 <span>₽ / курс</span></div>
+        <p class="pricing-desc">Для тех, кто хочет уверенно выступать. 8 занятий с глубокой практикой.</p>
+        <ul class="pricing-features">
+          <li>8 занятий по 1.5 часа</li>
+          <li>Продвинутое сведение и переходы</li>
+          <li>Работа с эффектами и лупами</li>
+          <li>Построение сета</li>
+          <li>Запись и анализ миксов</li>
+          <li>Итоговое выступление</li>
+        </ul>
+        <button class="btn btn-pink" style="width:100%" onclick="openPayModal('Средний курс', 18000)">Купить курс</button>
+      </div>
+      <div class="pricing-card">
+        <span class="badge badge-gold">Про</span>
+        <div class="pricing-name">Премиум</div>
+        <div class="pricing-price">35 000 <span>₽ / курс</span></div>
+        <p class="pricing-desc">Полное погружение. 16 занятий + менторство + реальные выступления.</p>
+        <ul class="pricing-features">
+          <li>16 занятий по 2 часа</li>
+          <li>Всё из Среднего уровня</li>
+          <li>Создание собственной музыки</li>
+          <li>Продвижение и нетворкинг</li>
+          <li>Реальное выступление на ивенте</li>
+          <li>Личный коучинг от XDEMA</li>
+          <li>Сертификат DJ</li>
+        </ul>
+        <button class="btn btn-gold" style="width:100%" onclick="openPayModal('Премиум курс', 35000)">Купить курс</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DJ Services -->
+  <div class="section reveal" style="background:linear-gradient(to bottom,transparent,rgba(0,229,255,.03),transparent)">
+    <h2 class="section-title">Услуги DJ</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Любой формат — от домашней вечеринки до большого корпоратива</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">🎉</div>
+        <div class="service-name">Частные вечеринки</div>
+        <p class="service-desc">Дни рождения, девичники, вечеринки у бассейна — живая музыка для вашего праздника</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏢</div>
+        <div class="service-name">Корпоративы</div>
+        <p class="service-desc">Профессиональный DJ для корпоративных мероприятий любого масштаба</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">💒</div>
+        <div class="service-name">Свадьбы</div>
+        <p class="service-desc">Незабываемая музыкальная атмосфера для вашего особенного дня</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎭</div>
+        <div class="service-name">Клубные выступления</div>
+        <p class="service-desc">Ночные клубы, бары, открытые площадки — energy на максимуме</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📺</div>
+        <div class="service-name">Онлайн-стримы</div>
+        <p class="service-desc">Live DJ-сеты для вашей онлайн-аудитории с профессиональным качеством звука</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎓</div>
+        <div class="service-name">Образовательные ивенты</div>
+        <p class="service-desc">Мастер-классы, воркшопы, демонстрации DJ-мастерства</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:2.5rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="showPage('dj')">Прайс-лист и бронирование</button>
+      <button class="btn btn-outline" onclick="openRequestModal()">Запросить цену</button>
+    </div>
+  </div>
+
+  <!-- Gallery Preview -->
+  <div class="section reveal">
+    <h2 class="section-title">Галерея</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Лучшие моменты выступлений</p>
+    <div class="gallery-grid" id="homeGallery"></div>
+    <div style="text-align:center;margin-top:2rem">
+      <button class="btn btn-outline" onclick="showPage('gallery')">Смотреть всё →</button>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="section reveal">
+    <h2 class="section-title">Отзывы</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Что говорят клиенты</p>
+    <div class="reviews-grid" id="homeReviews"></div>
+    <div style="text-align:center;margin-top:1.5rem">
+      <button class="btn btn-outline" onclick="showPage('reviews')">Все отзывы + оставить отзыв</button>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section reveal">
+    <h2 class="section-title">FAQ</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Частые вопросы</p>
+    <div class="faq-list" id="faqList"></div>
+  </div>
+
+  <!-- Contacts Brief -->
+  <div class="section reveal">
+    <h2 class="section-title">Контакты</h2>
+    <div class="divider"></div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Свяжитесь с нами</h3>
+        <div class="contact-item"><span class="contact-icon">📱</span><div><div class="contact-label">Телефон</div><div class="contact-val">+7 (999) 123-45-67</div></div></div>
+        <div class="contact-item"><span class="contact-icon">📧</span><div><div class="contact-label">Email</div><div class="contact-val">xdema@djmail.ru</div></div></div>
+        <div class="contact-item"><span class="contact-icon">📍</span><div><div class="contact-label">Город</div><div class="contact-val">Москва, РФ</div></div></div>
+        <div class="social-links">
+          <a class="social-btn" href="#">📸 Instagram</a>
+          <a class="social-btn" href="#">✈️ Telegram</a>
+          <a class="social-btn" href="#">▶️ YouTube</a>
+          <a class="social-btn" href="#">🎵 VK</a>
+        </div>
+      </div>
+      <div class="review-form">
+        <div class="form-title">Напишите нам</div>
+        <div class="form-group"><label>Имя</label><input class="form-control" placeholder="Ваше имя" id="cName"></div>
+        <div class="form-group"><label>Email или телефон</label><input class="form-control" placeholder="Контакт для ответа" id="cContact"></div>
+        <div class="form-group"><label>Сообщение</label><textarea class="form-control" placeholder="Расскажите о вашем мероприятии" id="cMsg"></textarea></div>
+        <button class="btn btn-primary" style="width:100%" onclick="sendContactForm()">Отправить сообщение</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── TRAINING ────────────────── -->
+<div class="page" id="page-training">
+  <div class="course-hero">
+    <div class="badge badge-cyan" style="margin-bottom:.7rem">Обучение DJ</div>
+    <div class="course-title">Научись быть DJ</div>
+    <p style="color:var(--muted);max-width:500px;margin:0 auto">Три уровня обучения — выбери свой путь от новичка до профессионала</p>
+  </div>
+  <div class="section">
+    <div class="pricing-grid">
+      <div class="pricing-card" onclick="showCourse('basic')" style="cursor:pointer">
+        <span class="badge badge-cyan">Уровень 1</span>
+        <div class="pricing-name">Базовый</div>
+        <div class="pricing-price">8 000 <span>₽</span></div>
+        <p class="pricing-desc">4 занятия. Основы DJ-мастерства для полных новичков.</p>
+        <ul class="pricing-features">
+          <li>4 занятия × 1.5 часа</li>
+          <li>Теория: ритм, BPM, структура</li>
+          <li>Базовое сведение треков</li>
+          <li>Работа с оборудованием</li>
+          <li>Учебные материалы</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%" onclick="event.stopPropagation();openPayModal('Базовый курс', 8000)">Купить — 8 000 ₽</button>
+      </div>
+      <div class="pricing-card featured" onclick="showCourse('middle')" style="cursor:pointer">
+        <span class="badge badge-pink">Уровень 2 — Хит</span>
+        <div class="pricing-name">Средний</div>
+        <div class="pricing-price">18 000 <span>₽</span></div>
+        <p class="pricing-desc">8 занятий. Глубокая практика и собственный стиль.</p>
+        <ul class="pricing-features">
+          <li>8 занятий × 1.5 часа</li>
+          <li>Продвинутые переходы и эффекты</li>
+          <li>Работа с лупами и сэмплами</li>
+          <li>Построение сета</li>
+          <li>Запись и анализ миксов</li>
+          <li>Итоговое выступление</li>
+        </ul>
+        <button class="btn btn-pink" style="width:100%" onclick="event.stopPropagation();openPayModal('Средний курс', 18000)">Купить — 18 000 ₽</button>
+      </div>
+      <div class="pricing-card" onclick="showCourse('premium')" style="cursor:pointer">
+        <span class="badge badge-gold">Уровень 3</span>
+        <div class="pricing-name">Премиум</div>
+        <div class="pricing-price">35 000 <span>₽</span></div>
+        <p class="pricing-desc">16 занятий + менторство + реальное выступление.</p>
+        <ul class="pricing-features">
+          <li>16 занятий × 2 часа</li>
+          <li>Создание собственной музыки</li>
+          <li>Продвижение и нетворкинг</li>
+          <li>Реальный ивент</li>
+          <li>Личный коучинг XDEMA</li>
+          <li>Сертификат DJ</li>
+        </ul>
+        <button class="btn btn-gold" style="width:100%" onclick="event.stopPropagation();openPayModal('Премиум курс', 35000)">Купить — 35 000 ₽</button>
+      </div>
+    </div>
+
+    <!-- Course Detail -->
+    <div id="courseDetail" style="margin-top:3rem;display:none" class="reveal">
+      <h2 class="section-title" id="courseDetailTitle"></h2>
+      <div class="divider"></div>
+      <div class="course-grid">
+        <div>
+          <div class="admin-card">
+            <h3>Программа курса</h3>
+            <ol class="program-list" id="courseProgram"></ol>
+          </div>
+          <div class="admin-card" style="margin-top:1.5rem">
+            <h3>Кому подходит</h3>
+            <p style="color:var(--muted);font-size:.9rem;line-height:1.7" id="courseFor"></p>
+          </div>
+        </div>
+        <div class="sticky-buy">
+          <div id="courseBuyBadge" class="badge" style="margin-bottom:.7rem"></div>
+          <div class="pricing-name" id="courseBuyName"></div>
+          <div class="pricing-price" id="courseBuyPrice"></div>
+          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem" id="courseBuyDesc"></p>
+          <button class="btn btn-primary" style="width:100%;margin-bottom:.8rem" id="courseBuyBtn">Купить курс</button>
+          <button class="btn btn-outline" style="width:100%;font-size:.82rem" onclick="openRequestModal()">Задать вопрос</button>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--glass-border)">
+            <div style="font-size:.78rem;color:var(--muted)">✓ Оплата без регистрации<br>✓ Онлайн и оффлайн<br>✓ Сертификат об окончании</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── DJ SERVICES ────────────────── -->
+<div class="page" id="page-dj">
+  <div class="course-hero" style="background:linear-gradient(135deg,rgba(255,45,120,.08),rgba(0,229,255,.05))">
+    <div class="badge badge-pink" style="margin-bottom:.7rem">DJ Услуги</div>
+    <div class="course-title" style="background:linear-gradient(135deg,var(--pink),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Заказать DJ</div>
+    <p style="color:var(--muted);max-width:500px;margin:0 auto">Профессиональный DJ для любого мероприятия. Современное оборудование. Любые жанры.</p>
+  </div>
+  <div class="section">
+    <h2 class="section-title">Частные мероприятия</h2>
+    <div class="divider"></div>
+    <div class="services-grid" style="margin-bottom:3rem">
+      <div class="service-card"><div class="service-icon">🎂</div><div class="service-name">День рождения</div><p class="service-desc">Персональная программа, ваши любимые треки, живая атмосфера праздника</p></div>
+      <div class="service-card"><div class="service-icon">🥂</div><div class="service-name">Вечеринка</div><p class="service-desc">House, techno, pop, R&B — любой формат для вашей компании</p></div>
+      <div class="service-card"><div class="service-icon">💒</div><div class="service-name">Свадьба</div><p class="service-desc">Церемония, банкет, дискотека — полное музыкальное сопровождение</p></div>
+    </div>
+
+    <h2 class="section-title">Корпоративы</h2>
+    <div class="divider"></div>
+    <div class="services-grid" style="margin-bottom:3rem">
+      <div class="service-card"><div class="service-icon">🏆</div><div class="service-name">Корпоратив</div><p class="service-desc">Профессиональный DJ + оборудование для корпоративного мероприятия любого масштаба</p></div>
+      <div class="service-card"><div class="service-icon">🚀</div><div class="service-name">Презентация / конференция</div><p class="service-desc">Музыкальное сопровождение для деловых событий: afterparty, нетворкинг</p></div>
+      <div class="service-card"><div class="service-icon">🎊</div><div class="service-name">Тимбилдинг</div><p class="service-desc">Интерактивные музыкальные активности, мастер-класс DJ для команды</p></div>
+    </div>
+
+    <h2 class="section-title">Прайс-лист</h2>
+    <div class="divider"></div>
+    <div style="max-width:700px;margin:0 auto">
+      <div class="glass-card" style="padding:2rem" id="djPriceCard">
+        <table class="price-table" id="djPriceTable"></table>
+        <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--glass-border);color:var(--muted);font-size:.82rem;line-height:1.8">
+          * Стоимость зависит от удалённости и сложности мероприятия<br>
+          * Минимальный заказ — 2 часа<br>
+          * Обсуждение деталей бесплатно
+        </div>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:2rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-pink" onclick="openBookModal()">📅 Забронировать дату</button>
+        <button class="btn btn-outline" onclick="openRequestModal()">💬 Запросить индивидуальную цену</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── CORPORATE ────────────────── -->
+<div class="page" id="page-corporate">
+  <div class="course-hero" style="background:linear-gradient(135deg,rgba(255,214,0,.07),rgba(0,229,255,.05))">
+    <div class="badge badge-gold" style="margin-bottom:.7rem">Корпоративы</div>
+    <div class="course-title" style="background:linear-gradient(135deg,var(--gold),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Для бизнеса</div>
+    <p style="color:var(--muted);max-width:500px;margin:0 auto">Профессиональный подход к корпоративным мероприятиям. Согласование программы, райдер, отчётность.</p>
+  </div>
+  <div class="section">
+    <div class="services-grid">
+      <div class="service-card" style="border-color:rgba(255,214,0,.15)">
+        <div class="service-icon">📋</div>
+        <div class="service-name">Согласование программы</div>
+        <p class="service-desc">Обсуждаем ваши пожелания заранее. Составляем плейлист под корпоративный дух и аудиторию</p>
+      </div>
+      <div class="service-card" style="border-color:rgba(255,214,0,.15)">
+        <div class="service-icon">🔊</div>
+        <div class="service-name">Оборудование</div>
+        <p class="service-desc">Профессиональный звук Pioneer, JBL. Возможна аренда светового оборудования</p>
+      </div>
+      <div class="service-card" style="border-color:rgba(255,214,0,.15)">
+        <div class="service-icon">📄</div>
+        <div class="service-name">Документы и договор</div>
+        <p class="service-desc">Работаем официально: договор, акт выполненных работ, оплата на ИП или по счёту</p>
+      </div>
+      <div class="service-card" style="border-color:rgba(255,214,0,.15)">
+        <div class="service-icon">🎛️</div>
+        <div class="service-name">DJ-мастер-класс для команды</div>
+        <p class="service-desc">Нестандартный тимбилдинг: каждый попробует себя в роли DJ. Незабываемый опыт</p>
+      </div>
+    </div>
+    <div style="max-width:700px;margin:3rem auto 0">
+      <div class="glass-card" style="padding:2rem">
+        <h3 style="font-family:var(--font-head);font-size:1.5rem;letter-spacing:.07em;margin-bottom:1.2rem">Пакеты для корпоративов</h3>
+        <table class="price-table">
+          <tr><td>Базовый (2–3 часа, только DJ)</td><td>от 15 000 ₽</td></tr>
+          <tr><td>Стандарт (4 часа + оборудование)</td><td>от 25 000 ₽</td></tr>
+          <tr><td>Премиум (6+ часов + свет + ведущий)</td><td>от 45 000 ₽</td></tr>
+          <tr><td>DJ-мастер-класс для команды (до 20 чел.)</td><td>от 30 000 ₽</td></tr>
+        </table>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap">
+          <button class="btn btn-gold" onclick="openBookModal()">Забронировать</button>
+          <button class="btn btn-outline" onclick="openRequestModal()">Получить КП</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── LIVE QR ────────────────── -->
+<div class="page" id="page-liveqr">
+  <div class="qr-hero">
+    <div class="badge badge-gold" style="margin-bottom:.7rem">Фишка сайта</div>
+    <div class="qr-title">LIVE QR</div>
+    <p style="color:var(--muted);max-width:500px;margin:.8rem auto 0;font-size:.95rem">Сканируй QR на мероприятии — и ты в прямом контакте с DJ. Закажи трек, оставь чаевые, напиши сообщение прямо сейчас.</p>
+  </div>
+  <div class="section">
+    <div class="qr-actions" id="qrActions">
+      <div class="qr-card" onclick="openQrModal('track')">
+        <div class="qr-card-icon">🎵</div>
+        <div class="qr-card-title">Заказать трек</div>
+        <p class="qr-card-desc">Хочешь конкретный трек? Закажи прямо сейчас — оплата через форму</p>
+        <button class="btn btn-primary btn-sm" style="margin-top:1.2rem">Заказать — от 500 ₽</button>
+      </div>
+      <div class="qr-card" onclick="openQrModal('dance')">
+        <div class="qr-card-icon">💃</div>
+        <div class="qr-card-title">Заказать танец</div>
+        <p class="qr-card-desc">Закажи специальный трек для особенного момента и танца</p>
+        <button class="btn btn-pink btn-sm" style="margin-top:1.2rem">Заказать — от 800 ₽</button>
+      </div>
+      <div class="qr-card" onclick="openQrModal('tip')">
+        <div class="qr-card-icon">💰</div>
+        <div class="qr-card-title">Оставить чаевые</div>
+        <p class="qr-card-desc">Понравилась атмосфера? Поддержи DJ любой суммой — это важно!</p>
+        <button class="btn btn-gold btn-sm" style="margin-top:1.2rem">Отправить чаевые</button>
+      </div>
+      <div class="qr-card" onclick="openQrModal('msg')">
+        <div class="qr-card-icon">✉️</div>
+        <div class="qr-card-title">Написать DJ</div>
+        <p class="qr-card-desc">Личное сообщение DJ — пожелание, благодарность или запрос</p>
+        <button class="btn btn-ghost btn-sm" style="margin-top:1.2rem">Написать — 100 ₽</button>
+      </div>
+    </div>
+
+    <!-- QR Code display -->
+    <div style="text-align:center;margin-top:4rem">
+      <div class="glass-card" style="display:inline-block;padding:2rem">
+        <div style="font-family:var(--font-head);font-size:1.2rem;letter-spacing:.1em;color:var(--muted);margin-bottom:1.2rem">QR для распечатки на мероприятии</div>
+        <div style="width:160px;height:160px;margin:0 auto;background:white;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+          <svg viewBox="0 0 100 100" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Simplified QR pattern -->
+            <rect width="100" height="100" fill="white"/>
+            <rect x="5" y="5" width="30" height="30" fill="none" stroke="black" stroke-width="4"/>
+            <rect x="10" y="10" width="20" height="20" fill="black"/>
+            <rect x="65" y="5" width="30" height="30" fill="none" stroke="black" stroke-width="4"/>
+            <rect x="70" y="10" width="20" height="20" fill="black"/>
+            <rect x="5" y="65" width="30" height="30" fill="none" stroke="black" stroke-width="4"/>
+            <rect x="10" y="70" width="20" height="20" fill="black"/>
+            <!-- data modules -->
+            <rect x="42" y="5" width="5" height="5" fill="black"/>
+            <rect x="50" y="5" width="5" height="5" fill="black"/>
+            <rect x="58" y="5" width="5" height="5" fill="black"/>
+            <rect x="42" y="13" width="5" height="5" fill="black"/>
+            <rect x="58" y="13" width="5" height="5" fill="black"/>
+            <rect x="5" y="42" width="5" height="5" fill="black"/>
+            <rect x="13" y="42" width="5" height="5" fill="black"/>
+            <rect x="42" y="42" width="5" height="5" fill="black"/>
+            <rect x="50" y="42" width="5" height="5" fill="black"/>
+            <rect x="58" y="42" width="5" height="5" fill="black"/>
+            <rect x="66" y="42" width="5" height="5" fill="black"/>
+            <rect x="74" y="42" width="5" height="5" fill="black"/>
+            <rect x="90" y="42" width="5" height="5" fill="black"/>
+            <rect x="5" y="50" width="5" height="5" fill="black"/>
+            <rect x="21" y="50" width="5" height="5" fill="black"/>
+            <rect x="42" y="50" width="5" height="5" fill="black"/>
+            <rect x="58" y="50" width="5" height="5" fill="black"/>
+            <rect x="74" y="50" width="5" height="5" fill="black"/>
+            <rect x="90" y="50" width="5" height="5" fill="black"/>
+            <rect x="5" y="58" width="5" height="5" fill="black"/>
+            <rect x="13" y="58" width="5" height="5" fill="black"/>
+            <rect x="50" y="58" width="5" height="5" fill="black"/>
+            <rect x="66" y="58" width="5" height="5" fill="black"/>
+            <rect x="42" y="66" width="5" height="5" fill="black"/>
+            <rect x="58" y="66" width="5" height="5" fill="black"/>
+            <rect x="74" y="66" width="5" height="5" fill="black"/>
+            <rect x="90" y="66" width="5" height="5" fill="black"/>
+            <rect x="42" y="74" width="5" height="5" fill="black"/>
+            <rect x="50" y="74" width="5" height="5" fill="black"/>
+            <rect x="66" y="74" width="5" height="5" fill="black"/>
+            <rect x="82" y="74" width="5" height="5" fill="black"/>
+            <rect x="42" y="82" width="5" height="5" fill="black"/>
+            <rect x="58" y="82" width="5" height="5" fill="black"/>
+            <rect x="74" y="82" width="5" height="5" fill="black"/>
+            <rect x="42" y="90" width="5" height="5" fill="black"/>
+            <rect x="50" y="90" width="5" height="5" fill="black"/>
+            <rect x="90" y="90" width="5" height="5" fill="black"/>
+            <!-- Center XDEMA text area -->
+            <rect x="44" y="44" width="12" height="12" fill="white"/>
+            <text x="50" y="53" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#07070f">X</text>
+          </svg>
+        </div>
+        <div style="margin-top:1rem;font-size:.8rem;color:var(--muted)">xdema.ru/live</div>
+        <button class="btn btn-outline btn-sm" style="margin-top:1rem" onclick="window.print()">🖨️ Распечатать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── GALLERY ────────────────── -->
+<div class="page" id="page-gallery">
+  <div class="section">
+    <h2 class="section-title">Галерея</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Лучшие моменты. Живые эмоции.</p>
+    <div class="gallery-grid" id="fullGallery" style="margin-bottom:2rem"></div>
+  </div>
+</div>
+
+<!-- ────────────────── REVIEWS ────────────────── -->
+<div class="page" id="page-reviews">
+  <div class="section">
+    <h2 class="section-title">Отзывы</h2>
+    <div class="divider"></div>
+    <div class="reviews-grid" id="allReviews"></div>
+    <div class="review-form" style="margin-top:2rem">
+      <div class="form-title">Оставить отзыв</div>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Без регистрации. Ваш отзыв появится после проверки.</p>
+      <div class="form-group"><label>Ваше имя</label><input class="form-control" id="rName" placeholder="Как вас зовут?"></div>
+      <div class="form-group">
+        <label>Оценка</label>
+        <div class="star-rating" id="starRating">
+          <button class="star-btn" data-star="1" onclick="setStar(1)">★</button>
+          <button class="star-btn" data-star="2" onclick="setStar(2)">★</button>
+          <button class="star-btn" data-star="3" onclick="setStar(3)">★</button>
+          <button class="star-btn" data-star="4" onclick="setStar(4)">★</button>
+          <button class="star-btn" data-star="5" onclick="setStar(5)">★</button>
+        </div>
+      </div>
+      <div class="form-group"><label>Отзыв</label><textarea class="form-control" id="rText" placeholder="Расскажите о вашем опыте..."></textarea></div>
+      <div class="form-group"><label>Мероприятие (необязательно)</label><input class="form-control" id="rEvent" placeholder="Например: свадьба, корпоратив..."></div>
+      <button class="btn btn-primary" style="width:100%" onclick="submitReview()">Отправить отзыв</button>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── CONTACTS ────────────────── -->
+<div class="page" id="page-contacts">
+  <div class="section">
+    <h2 class="section-title">Контакты</h2>
+    <div class="divider"></div>
+    <div class="contact-grid" style="margin-bottom:3rem">
+      <div class="contact-info">
+        <h3>Свяжитесь с XDEMA</h3>
+        <div class="contact-item"><span class="contact-icon">📱</span><div><div class="contact-label">Телефон / WhatsApp</div><div class="contact-val">+7 (999) 123-45-67</div></div></div>
+        <div class="contact-item"><span class="contact-icon">📧</span><div><div class="contact-label">Email</div><div class="contact-val">xdema@djmail.ru</div></div></div>
+        <div class="contact-item"><span class="contact-icon">📍</span><div><div class="contact-label">Локация</div><div class="contact-val">Москва и МО. Выезд по РФ.</div></div></div>
+        <div class="contact-item"><span class="contact-icon">🕐</span><div><div class="contact-label">Время ответа</div><div class="contact-val">Обычно в течение 2 часов</div></div></div>
+        <div class="social-links">
+          <a class="social-btn" href="#">📸 Instagram</a>
+          <a class="social-btn" href="#">✈️ Telegram</a>
+          <a class="social-btn" href="#">▶️ YouTube</a>
+          <a class="social-btn" href="#">🎵 VK</a>
+          <a class="social-btn" href="#">🎧 SoundCloud</a>
+        </div>
+      </div>
+      <div class="review-form">
+        <div class="form-title">Запрос</div>
+        <div class="form-group"><label>Имя</label><input class="form-control" id="c2Name" placeholder="Ваше имя"></div>
+        <div class="form-group"><label>Контакт</label><input class="form-control" id="c2Contact" placeholder="Телефон или Email"></div>
+        <div class="form-group"><label>Тип мероприятия</label>
+          <select class="form-control" id="c2Type">
+            <option value="">Выберите...</option>
+            <option>День рождения</option>
+            <option>Свадьба</option>
+            <option>Корпоратив</option>
+            <option>Вечеринка</option>
+            <option>Обучение</option>
+            <option>Другое</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Сообщение</label><textarea class="form-control" id="c2Msg" placeholder="Расскажите подробнее..."></textarea></div>
+        <button class="btn btn-primary" style="width:100%" onclick="sendContactForm2()">Отправить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── ADMIN ────────────────── -->
+<div class="page" id="page-admin">
+  <div id="adminLoginWrap">
+    <div class="section">
+      <div class="admin-login">
+        <div style="font-family:var(--font-head);font-size:2.5rem;letter-spacing:.1em;background:linear-gradient(135deg,var(--cyan),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem">ADMIN</div>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:2rem">Панель управления XDEMA</p>
+        <div class="form-group"><label>Пароль</label><input class="form-control" type="password" id="adminPass" placeholder="Введите пароль" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:.5rem" onclick="adminLogin()">Войти</button>
+        <div id="adminErr" style="color:var(--pink);font-size:.8rem;margin-top:.8rem;display:none">Неверный пароль</div>
+      </div>
+    </div>
+  </div>
+  <div id="adminPanelWrap" style="display:none">
+    <div class="admin-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+        <div style="font-family:var(--font-head);font-size:2rem;letter-spacing:.1em;background:linear-gradient(135deg,var(--cyan),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent">ADMIN PANEL</div>
+        <button class="btn btn-ghost btn-sm" onclick="adminLogout()">Выйти</button>
+      </div>
+      <!-- Stats -->
+      <div class="admin-grid" id="adminStats"></div>
+
+      <!-- Tabs -->
+      <div class="admin-nav">
+        <button class="admin-tab active" onclick="switchAdminTab('orders')">📦 Заказы</button>
+        <button class="admin-tab" onclick="switchAdminTab('reviews')">⭐ Отзывы</button>
+        <button class="admin-tab" onclick="switchAdminTab('prices')">💰 Цены</button>
+        <button class="admin-tab" onclick="switchAdminTab('gallery')">🖼️ Галерея</button>
+        <button class="admin-tab" onclick="switchAdminTab('messages')">✉️ Сообщения</button>
+      </div>
+
+      <!-- Orders -->
+      <div class="admin-section active" id="admin-orders">
+        <div class="admin-card">
+          <h3>Заказы и бронирования</h3>
+          <div style="overflow-x:auto">
+            <table class="admin-table" id="ordersTable">
+              <thead><tr><th>#</th><th>Тип</th><th>Клиент</th><th>Детали</th><th>Сумма</th><th>Дата</th><th>Статус</th></tr></thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="admin-section" id="admin-reviews">
+        <div class="admin-card">
+          <h3>Управление отзывами</h3>
+          <div id="adminReviewsList"></div>
+        </div>
+      </div>
+
+      <!-- Prices -->
+      <div class="admin-section" id="admin-prices">
+        <div class="admin-card">
+          <h3>Цены на обучение</h3>
+          <div id="trainPricesEdit"></div>
+          <button class="btn btn-primary btn-sm" style="margin-top:1rem" onclick="savePrices()">Сохранить цены</button>
+        </div>
+        <div class="admin-card">
+          <h3>Цены DJ (прайс-лист)</h3>
+          <div id="djPricesEdit"></div>
+          <button class="btn btn-primary btn-sm" style="margin-top:1rem" onclick="saveDjPrices()">Сохранить цены</button>
+        </div>
+      </div>
+
+      <!-- Gallery Upload -->
+      <div class="admin-section" id="admin-gallery">
+        <div class="admin-card">
+          <h3>Загрузить фото</h3>
+          <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.2rem">Формат: JPG, PNG, WEBP. Максимум 5 MB на файл.</p>
+          <label style="display:block;border:2px dashed var(--glass-border);border-radius:12px;padding:2.5rem;text-align:center;cursor:pointer;transition:.2s;color:var(--muted)"
+            onmouseenter="this.style.borderColor='var(--cyan)'" onmouseleave="this.style.borderColor='var(--glass-border)'">
+            <div style="font-size:3rem;margin-bottom:.5rem">📁</div>
+            <div>Нажмите или перетащите файл</div>
+            <input type="file" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(this)">
+          </label>
+          <div class="gallery-grid" id="adminGalleryGrid" style="margin-top:1.5rem"></div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="admin-section" id="admin-messages">
+        <div class="admin-card">
+          <h3>Входящие сообщения</h3>
+          <div id="messagesList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">XDEMA</div>
+  <div class="footer-text">© 2025 XDEMA. DJ & Обучение. Все права защищены.</div>
+  <div class="footer-links">
+    <a onclick="showPage('training')">Обучение</a>
+    <a onclick="showPage('dj')">DJ</a>
+    <a onclick="showPage('liveqr')">Live QR</a>
+    <a onclick="showPage('contacts')">Контакты</a>
+    <a onclick="showPage('admin')" style="color:rgba(255,255,255,.15)">⚙</a>
+  </div>
+</footer>
+
+<!-- ────── MODALS ────── -->
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('payModal')">✕</button>
+    <div class="modal-title" id="payModalTitle">Оплата</div>
+    <div class="modal-sub" id="payModalSub">Без регистрации</div>
+    <div class="form-group"><label>Ваше имя</label><input class="form-control" id="payName" placeholder="Имя"></div>
+    <div class="form-group"><label>Email для квитанции</label><input class="form-control" id="payEmail" placeholder="email@example.com" type="email"></div>
+    <div class="form-group"><label>Телефон</label><input class="form-control" id="payPhone" placeholder="+7 (___) ___-__-__"></div>
+    <div style="margin-bottom:1.2rem">
+      <label style="display:block;font-size:.8rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem">Способ оплаты</label>
+      <div class="payment-options">
+        <div class="pay-opt selected" onclick="selectPay(this,'card')"><span class="pay-icon">💳</span>Картой</div>
+        <div class="pay-opt" onclick="selectPay(this,'sbp')"><span class="pay-icon">📲</span>СБП</div>
+        <div class="pay-opt" onclick="selectPay(this,'cash')"><span class="pay-icon">💵</span>Наличные</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:rgba(0,229,255,.06);border-radius:10px;margin-bottom:1.5rem">
+      <span style="font-size:.9rem;color:var(--muted)">К оплате:</span>
+      <span style="font-family:var(--font-mono);font-size:1.4rem;color:var(--cyan)" id="payTotal"></span>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="processPayment()">Оплатить</button>
+  </div>
+</div>
+
+<!-- Book Modal -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('bookModal')">✕</button>
+    <div class="modal-title">Бронирование</div>
+    <div class="modal-sub">Укажите детали мероприятия</div>
+    <div class="form-group"><label>Ваше имя</label><input class="form-control" id="bkName" placeholder="Имя"></div>
+    <div class="form-group"><label>Телефон / Telegram</label><input class="form-control" id="bkPhone" placeholder="+7 или @username"></div>
+    <div class="form-group"><label>Дата мероприятия</label><input class="form-control" type="date" id="bkDate"></div>
+    <div class="form-group"><label>Тип мероприятия</label>
+      <select class="form-control" id="bkType">
+        <option>День рождения</option>
+        <option>Свадьба</option>
+        <option>Корпоратив</option>
+        <option>Вечеринка</option>
+        <option>Клубное выступление</option>
+        <option>Другое</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Продолжительность</label>
+      <select class="form-control" id="bkDuration">
+        <option>2 часа</option>
+        <option>3 часа</option>
+        <option>4 часа</option>
+        <option>5–6 часов</option>
+        <option>Весь день</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Комментарий</label><textarea class="form-control" id="bkComment" placeholder="Пожелания, адрес..."></textarea></div>
+    <button class="btn btn-primary" style="width:100%" onclick="processBooking()">Отправить заявку</button>
+  </div>
+</div>
+
+<!-- Request Modal -->
+<div class="modal-overlay" id="requestModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('requestModal')">✕</button>
+    <div class="modal-title">Запрос цены</div>
+    <div class="modal-sub">Опишите ваше мероприятие — рассчитаем стоимость</div>
+    <div class="form-group"><label>Имя</label><input class="form-control" id="rqName" placeholder="Ваше имя"></div>
+    <div class="form-group"><label>Контакт</label><input class="form-control" id="rqContact" placeholder="Телефон, email или Telegram"></div>
+    <div class="form-group"><label>Описание</label><textarea class="form-control" id="rqDesc" placeholder="Расскажите о мероприятии: тип, дата, гости, место..."></textarea></div>
+    <button class="btn btn-primary" style="width:100%" onclick="processRequest()">Отправить запрос</button>
+  </div>
+</div>
+
+<!-- Live QR Modal -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('qrModal')">✕</button>
+    <div class="modal-title" id="qrModalTitle"></div>
+    <div class="modal-sub" id="qrModalSub"></div>
+    <div class="form-group" id="qrTrackGroup" style="display:none">
+      <label>Название трека / артист</label>
+      <input class="form-control" id="qrTrackName" placeholder="Например: Calvin Harris — Feel So Close">
+    </div>
+    <div class="form-group" id="qrMsgGroup" style="display:none">
+      <label>Сообщение для DJ</label>
+      <textarea class="form-control" id="qrMsgText" placeholder="Ваше сообщение..."></textarea>
+    </div>
+    <div class="form-group"><label>Ваше имя (или аноним)</label><input class="form-control" id="qrFrom" placeholder="Имя (необязательно)"></div>
+    <div class="form-group" id="qrAmountGroup">
+      <label>Сумма</label>
+      <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.4rem" id="qrAmountBtns"></div>
+      <input class="form-control" id="qrCustomAmount" style="margin-top:.7rem" placeholder="Или введите свою сумму, ₽" type="number">
+    </div>
+    <div class="payment-options" style="margin-bottom:1.2rem">
+      <div class="pay-opt selected" onclick="selectPay(this,'card')"><span class="pay-icon">💳</span>Картой</div>
+      <div class="pay-opt" onclick="selectPay(this,'sbp')"><span class="pay-icon">📲</span>СБП</div>
+    </div>
+    <button class="btn btn-gold" style="width:100%" onclick="processQrPayment()">Отправить</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const ADMIN_PASS = 'xdema2024';
+let adminLogged = false;
+let selectedStars = 0;
+let currentPayItem = '';
+let currentPayAmount = 0;
+let currentQrType = '';
+let selectedPayMethod = 'card';
+
+const defaultPrices = {
+  training: { basic: 8000, middle: 18000, premium: 35000 },
+  dj: [
+    {name: '1 час DJ (стандарт)', price: 8000},
+    {name: '2 часа DJ', price: 14000},
+    {name: 'Полная ночь (6+ часов)', price: 35000},
+    {name: 'Аренда оборудования (звук)', price: 7000},
+    {name: 'Световое оборудование', price: 5000},
+    {name: 'Мастер-класс DJ (1.5 часа)', price: 12000},
+    {name: 'Выезд за МКАД (до 50 км)', price: 3000},
+  ]
+};
+
+const defaultReviews = [
+  {id:1,name:'Анна К.',rating:5,text:'XDEMA сделал наш корпоратив незабываемым! Все танцевали до самого конца. Рекомендую!',event:'Корпоратив',date:'12.11.2024',approved:true},
+  {id:2,name:'Максим Д.',rating:5,text:'Взял базовый курс обучения — уже через 4 занятия делаю первые миксы. Отличный педагог!',event:'Обучение',date:'03.12.2024',approved:true},
+  {id:3,name:'Света О.',rating:5,text:'Заказывали DJ на свадьбу. Всё было идеально: и музыка, и подача, и реакция на гостей.',event:'Свадьба',date:'18.10.2024',approved:true},
+  {id:4,name:'Виктор П.',rating:4,text:'Хороший профессионал. Всё чётко, без опозданий. Музыка — огонь.',event:'Вечеринка',date:'05.01.2025',approved:true},
+];
+
+const faqData = [
+  {q:'Как записаться на обучение?', a:'Нажмите кнопку "Купить курс", заполните форму оплаты. После этого мы свяжемся с вами в течение 2 часов для согласования расписания.'},
+  {q:'Нужно ли своё оборудование для обучения?', a:'Нет, всё оборудование предоставляется. У нас профессиональные Pioneer CDJ и Pioneer DJM.'},
+  {q:'Какой минимальный заказ DJ?', a:'Минимальный заказ — 2 часа. Стоимость рассчитывается по прайс-листу плюс возможные надбавки за выезд.'},
+  {q:'Как работает Live QR?', a:'На мероприятии мы размещаем QR-код. Гости сканируют его и через сайт могут заказать трек, оставить чаевые или написать сообщение — всё через онлайн-оплату.'},
+  {q:'Работаете ли вы официально?', a:'Да, работаем по договору. Возможна оплата наличными, картой, СБП, и по счёту для юр. лиц.'},
+  {q:'Есть ли скидки при повторном обращении?', a:'Да, постоянным клиентам предоставляется скидка 10–15%. Также действуют скидки при раннем бронировании (за 30+ дней).'},
+];
+
+function getState() {
+  try {
+    const s = localStorage.getItem('xdema_state');
+    if (s) return JSON.parse(s);
+  } catch(e){}
+  return {
+    prices: JSON.parse(JSON.stringify(defaultPrices)),
+    reviews: JSON.parse(JSON.stringify(defaultReviews)),
+    orders: [],
+    messages: [],
+    gallery: [],
+    nextId: 100,
+  };
+}
+function saveState(st) {
+  try { localStorage.setItem('xdema_state', JSON.stringify(st)); } catch(e){}
+}
+let ST = getState();
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById('page-' + id);
+  if (pg) {
+    pg.classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  // close burger
+  document.getElementById('navLinks').classList.remove('open');
+  // render page content
+  if (id === 'home') { renderHomeReviews(); renderHomeGallery(); renderFaq(); }
+  if (id === 'reviews') renderAllReviews();
+  if (id === 'gallery') renderFullGallery();
+  if (id === 'dj') renderDjPriceTable();
+  if (id === 'admin') renderAdmin();
+  // scroll reveal
+  setTimeout(() => {
+    document.querySelectorAll('.reveal').forEach(el => {
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+      },{threshold:.1});
+      obs.observe(el);
+    });
+  }, 100);
+}
+function toggleMenu() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════
+//  GALLERY
+// ═══════════════════════════════════════════════════════
+const galleryColors = [
+  ['rgba(0,229,255,.12)','rgba(0,150,170,.08)'],
+  ['rgba(255,45,120,.12)','rgba(180,0,80,.08)'],
+  ['rgba(255,214,0,.1)','rgba(200,150,0,.07)'],
+  ['rgba(120,0,255,.1)','rgba(0,229,255,.06)'],
+  ['rgba(0,255,150,.08)','rgba(0,229,255,.05)'],
+  ['rgba(255,100,0,.1)','rgba(255,45,120,.07)'],
+];
+const galleryLabels = ['Вечеринка 2024','Корпоратив Сбер','Свадьба А&В','Club Night','Выпускной','DJ Set Live','Corporate Party','Birthday Bash','Summer Festival','New Year Mix','Private Event','Yacht Party'];
+function makeGalleryItem(i, label) {
+  const c = galleryColors[i % galleryColors.length];
+  return `<div class="gallery-item" style="background:linear-gradient(135deg,${c[0]},${c[1]})" onclick="showToast('📸 ' + (label || 'Фото'))">
+    <div class="gallery-placeholder">
+      <div class="icon">📸</div>
+      <div style="font-size:.75rem">${label || 'Фото ' + (i+1)}</div>
+    </div>
+  </div>`;
+}
+function renderHomeGallery() {
+  const el = document.getElementById('homeGallery');
+  if (!el) return;
+  let html = '';
+  for(let i=0;i<6;i++) html += makeGalleryItem(i, galleryLabels[i]);
+  el.innerHTML = html;
+}
+function renderFullGallery() {
+  const el = document.getElementById('fullGallery');
+  if (!el) return;
+  let html = '';
+  const items = [...ST.gallery];
+  for(let i=0;i<12;i++) html += makeGalleryItem(i, items[i]?.label || galleryLabels[i % galleryLabels.length]);
+  el.innerHTML = html;
+}
+function renderAdminGallery() {
+  const el = document.getElementById('adminGalleryGrid');
+  if (!el) return;
+  let html = '';
+  ST.gallery.forEach((g,i) => {
+    html += `<div class="gallery-item" style="position:relative">
+      <div class="gallery-placeholder" style="background:linear-gradient(135deg,${galleryColors[i%galleryColors.length][0]},${galleryColors[i%galleryColors.length][1]})">
+        <div class="icon">📸</div><div style="font-size:.72rem">${g.label}</div>
+      </div>
+      <button onclick="removeGalleryItem(${i})" style="position:absolute;top:.4rem;right:.4rem;background:var(--pink);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+function handleGalleryUpload(inp) {
+  const files = inp.files;
+  for(const f of files) {
+    if(f.size > 5*1024*1024) { showToast('Файл слишком большой (>5MB)', 'error'); continue; }
+    ST.gallery.push({label: f.name.replace(/\.[^.]+$/,''), file: f.name});
+  }
+  saveState(ST);
+  renderAdminGallery();
+  renderStats();
+  showToast(`✓ Загружено ${files.length} фото`);
+}
+function removeGalleryItem(i) {
+  ST.gallery.splice(i,1);
+  saveState(ST);
+  renderAdminGallery();
+  renderStats();
+}
+
+// ═══════════════════════════════════════════════════════
+//  REVIEWS
+// ═══════════════════════════════════════════════════════
+function starsHtml(n) { return '★'.repeat(n) + '☆'.repeat(5-n); }
+function reviewCardHtml(r) {
+  const initials = r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `<div class="review-card">
+    <div class="review-header">
+      <div class="review-avatar">${initials}</div>
+      <div>
+        <div class="review-name">${r.name}${r.event ? ` <span style="color:var(--muted);font-weight:400;font-size:.8rem">· ${r.event}</span>` : ''}</div>
+        <div class="review-date">${r.date}</div>
+      </div>
+    </div>
+    <div class="stars">${starsHtml(r.rating)}</div>
+    <div class="review-text">${r.text}</div>
+  </div>`;
+}
+function renderHomeReviews() {
+  const el = document.getElementById('homeReviews');
+  if (!el) return;
+  const approved = ST.reviews.filter(r=>r.approved).slice(0,3);
+  el.innerHTML = approved.map(reviewCardHtml).join('');
+}
+function renderAllReviews() {
+  const el = document.getElementById('allReviews');
+  if (!el) return;
+  const approved = ST.reviews.filter(r=>r.approved);
+  el.innerHTML = approved.length ? approved.map(reviewCardHtml).join('') : '<p style="color:var(--muted);text-align:center;padding:2rem">Отзывов пока нет. Будьте первым!</p>';
+}
+function setStar(n) {
+  selectedStars = n;
+  document.querySelectorAll('#starRating .star-btn').forEach((b,i) => {
+    b.classList.toggle('active', i < n);
+  });
+}
+function submitReview() {
+  const name = document.getElementById('rName').value.trim();
+  const text = document.getElementById('rText').value.trim();
+  const event = document.getElementById('rEvent').value.trim();
+  if(!name || !text) { showToast('Заполните имя и текст отзыва', 'error'); return; }
+  if(!selectedStars) { showToast('Поставьте оценку', 'error'); return; }
+  ST.reviews.push({
+    id: ST.nextId++,
+    name, text, event, rating: selectedStars,
+    date: new Date().toLocaleDateString('ru'),
+    approved: false
+  });
+  saveState(ST);
+  document.getElementById('rName').value = '';
+  document.getElementById('rText').value = '';
+  document.getElementById('rEvent').value = '';
+  setStar(0);
+  showToast('✓ Отзыв отправлен на проверку. Спасибо!');
+}
+
+// ═══════════════════════════════════════════════════════
+//  FAQ
+// ═══════════════════════════════════════════════════════
+function renderFaq() {
+  const el = document.getElementById('faqList');
+  if (!el) return;
+  el.innerHTML = faqData.map((f,i) => `
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(${i})">
+        <span>${f.q}</span>
+        <i class="icon">+</i>
+      </button>
+      <div class="faq-a" id="faq-a-${i}">${f.a}</div>
+    </div>`).join('');
+}
+function toggleFaq(i) {
+  const q = document.querySelectorAll('.faq-q')[i];
+  const a = document.getElementById('faq-a-'+i);
+  q.classList.toggle('open');
+  a.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════
+//  DJ PRICE TABLE
+// ═══════════════════════════════════════════════════════
+function renderDjPriceTable() {
+  const el = document.getElementById('djPriceTable');
+  if (!el) return;
+  el.innerHTML = ST.prices.dj.map(r =>
+    `<tr><td>${r.name}</td><td>от ${r.price.toLocaleString('ru')} ₽</td></tr>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  COURSE DETAIL
+// ═══════════════════════════════════════════════════════
+const courses = {
+  basic: {
+    title:'Базовый курс',
+    badge:'badge-cyan',badgeText:'Уровень 1',
+    price: () => ST.prices.training.basic,
+    desc:'Основы DJ-мастерства за 4 занятия. Подходит для полных новичков.',
+    forText:'Подходит для тех, кто никогда не работал с DJ-оборудованием. Занятия проходят в комфортном темпе, каждый шаг подробно объясняется.',
+    program:['Знакомство с DJ-оборудованием: CDJ, микшер, наушники','Теория: BPM, ритм, структура трека','Базовые навыки: кюинг, старт, стоп','Ручная синхронизация темпа (beatmatching)','Простые переходы: cut, fade','Домашнее задание и разбор ошибок','Первый самостоятельный мини-сет','Итоговый разбор и рекомендации по развитию'],
+    payLabel:'Базовый курс', payKey:'basic'
+  },
+  middle: {
+    title:'Средний курс',
+    badge:'badge-pink',badgeText:'Уровень 2',
+    price: () => ST.prices.training.middle,
+    desc:'8 занятий с глубокой практикой. Создай свой стиль и выступи впервые.',
+    forText:'Для тех, кто имеет базовые навыки или прошёл базовый курс. Глубокое погружение в технику, стиль и построение выступления.',
+    program:['Повторение и закрепление базовых навыков','Продвинутый beatmatching и гармоническое сведение','Переходы: echo, filter, loop roll','Работа с эффектами DJ-пульта','Лупы и сэмплеры: работа в реальном времени','Построение сета: энергетика, дуги, пиковые моменты','Запись и критический анализ своих миксов','Разбор профессиональных сетов','Командное занятие: обратная связь от группы','Итоговое выступление с записью на видео'],
+    payLabel:'Средний курс', payKey:'middle'
+  },
+  premium: {
+    title:'Премиум курс',
+    badge:'badge-gold',badgeText:'Уровень 3',
+    price: () => ST.prices.training.premium,
+    desc:'16 занятий + менторство + реальное выступление. Путь к профессии.',
+    forText:'Для серьёзно настроенных учеников. Полный путь от техники к профессиональной карьере. Личное менторство от XDEMA, реальное выступление и сертификат.',
+    program:['Всё из Среднего курса (8 занятий)','Введение в создание музыки: Ableton Live','Создание своего первого трека','Продюсирование ремиксов и эдитов','Маркетинг DJ: соцсети, промо, брендинг','Работа с агентами и заказчиками','Технический райдер и документация','Видеосъёмка и продвижение в YouTube/Instagram','Нетворкинг: индустрия изнутри','Участие в реальном мероприятии XDEMA','Разбор выступления + сертификат DJ','Открытый доступ к студии 3 месяца'],
+    payLabel:'Премиум курс', payKey:'premium'
+  }
+};
+function showCourse(key) {
+  const c = courses[key];
+  if(!c) return;
+  document.getElementById('courseDetailTitle').textContent = c.title;
+  document.getElementById('courseProgram').innerHTML = c.program.map((p,i) =>
+    `<li data-num="${String(i+1).padStart(2,'0')}">${p}</li>`).join('');
+  document.getElementById('courseFor').textContent = c.forText;
+  document.getElementById('courseBuyBadge').className = `badge ${c.badge}`;
+  document.getElementById('courseBuyBadge').textContent = c.badgeText;
+  document.getElementById('courseBuyName').textContent = c.title;
+  document.getElementById('courseBuyPrice').innerHTML = `${c.price().toLocaleString('ru')} <span>₽</span>`;
+  document.getElementById('courseBuyDesc').textContent = c.desc;
+  document.getElementById('courseBuyBtn').onclick = () => openPayModal(c.payLabel, c.price());
+  const det = document.getElementById('courseDetail');
+  det.style.display = 'block';
+  det.classList.add('visible');
+  setTimeout(() => det.scrollIntoView({behavior:'smooth',block:'start'}), 100);
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════════════════
+function openPayModal(item, amount) {
+  currentPayItem = item;
+  currentPayAmount = amount;
+  document.getElementById('payModalTitle').textContent = item;
+  document.getElementById('payModalSub').textContent = `Оплата без регистрации`;
+  document.getElementById('payTotal').textContent = amount.toLocaleString('ru') + ' ₽';
+  document.getElementById('payModal').classList.add('open');
+}
+function openBookModal() {
+  document.getElementById('bookModal').classList.add('open');
+}
+function openRequestModal() {
+  document.getElementById('requestModal').classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+function selectPay(el, method) {
+  selectedPayMethod = method;
+  el.closest('.payment-options').querySelectorAll('.pay-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ═══════════════════════════════════════════════════════
+//  PAYMENT PROCESSING (demo)
+// ═══════════════════════════════════════════════════════
+function processPayment() {
+  const name = document.getElementById('payName').value.trim();
+  const email = document.getElementById('payEmail').value.trim();
+  if(!name) { showToast('Введите имя', 'error'); return; }
+  const order = {
+    id: ST.nextId++,
+    type: 'Оплата: ' + currentPayItem,
+    client: name,
+    contact: email,
+    details: currentPayItem,
+    amount: currentPayAmount,
+    date: new Date().toLocaleDateString('ru'),
+    status: 'новый'
+  };
+  ST.orders.push(order);
+  saveState(ST);
+  closeModal('payModal');
+  showToast('✓ Заказ оформлен! Мы свяжемся с вами для подтверждения.');
+  document.getElementById('payName').value = '';
+  document.getElementById('payEmail').value = '';
+  document.getElementById('payPhone').value = '';
+}
+function processBooking() {
+  const name = document.getElementById('bkName').value.trim();
+  const phone = document.getElementById('bkPhone').value.trim();
+  if(!name || !phone) { showToast('Заполните имя и контакт', 'error'); return; }
+  ST.orders.push({
+    id: ST.nextId++,
+    type: 'Бронирование DJ',
+    client: name,
+    contact: phone,
+    details: `${document.getElementById('bkType').value}, ${document.getElementById('bkDuration').value}, ${document.getElementById('bkDate').value}`,
+    amount: '—',
+    date: new Date().toLocaleDateString('ru'),
+    status: 'новый'
+  });
+  saveState(ST);
+  closeModal('bookModal');
+  showToast('✓ Заявка отправлена! Ответим в течение 2 часов.');
+}
+function processRequest() {
+  const name = document.getElementById('rqName').value.trim();
+  const contact = document.getElementById('rqContact').value.trim();
+  if(!name || !contact) { showToast('Заполните имя и контакт', 'error'); return; }
+  ST.messages.push({
+    id: ST.nextId++,
+    from: name,
+    contact,
+    text: document.getElementById('rqDesc').value,
+    date: new Date().toLocaleDateString('ru'),
+    type: 'Запрос цены'
+  });
+  saveState(ST);
+  closeModal('requestModal');
+  showToast('✓ Запрос отправлен! Рассчитаем стоимость и свяжемся с вами.');
+}
+
+// ═══════════════════════════════════════════════════════
+//  LIVE QR
+// ═══════════════════════════════════════════════════════
+const qrConfigs = {
+  track: { title:'Заказать трек 🎵', sub:'Оплата — гарантия воспроизведения', showTrack:true, showMsg:false, amounts:[500,1000,1500], defaultAmount:500 },
+  dance: { title:'Заказать танец 💃', sub:'Специальный трек для особого момента', showTrack:true, showMsg:false, amounts:[800,1500,2000], defaultAmount:800 },
+  tip:   { title:'Чаевые DJ 💰', sub:'Спасибо за крутую музыку!', showTrack:false, showMsg:false, amounts:[200,500,1000,2000], defaultAmount:500 },
+  msg:   { title:'Сообщение DJ ✉️', sub:'Личное сообщение', showTrack:false, showMsg:true, amounts:[100,300], defaultAmount:100 },
+};
+function openQrModal(type) {
+  currentQrType = type;
+  const c = qrConfigs[type];
+  document.getElementById('qrModalTitle').textContent = c.title;
+  document.getElementById('qrModalSub').textContent = c.sub;
+  document.getElementById('qrTrackGroup').style.display = c.showTrack ? 'block' : 'none';
+  document.getElementById('qrMsgGroup').style.display = c.showMsg ? 'block' : 'none';
+  document.getElementById('qrCustomAmount').value = '';
+  const btns = document.getElementById('qrAmountBtns');
+  btns.innerHTML = c.amounts.map(a =>
+    `<button class="btn btn-ghost btn-sm ${a===c.defaultAmount?'btn-primary':''}" onclick="setQrAmount(${a},this)">${a.toLocaleString('ru')} ₽</button>`
+  ).join('');
+  document.getElementById('qrModal').classList.add('open');
+}
+function setQrAmount(a, btn) {
+  document.querySelectorAll('#qrAmountBtns .btn').forEach(b => b.className = b.className.replace('btn-primary','btn-ghost'));
+  btn.className = btn.className.replace('btn-ghost','btn-primary');
+  document.getElementById('qrCustomAmount').value = a;
+}
+function processQrPayment() {
+  const c = qrConfigs[currentQrType];
+  const from = document.getElementById('qrFrom').value.trim() || 'Аноним';
+  const amount = parseInt(document.getElementById('qrCustomAmount').value) || c.defaultAmount;
+  const track = document.getElementById('qrTrackName')?.value.trim() || '';
+  const msg = document.getElementById('qrMsgText')?.value.trim() || '';
+  ST.orders.push({
+    id: ST.nextId++,
+    type: c.title,
+    client: from,
+    contact: '—',
+    details: track || msg || 'Live QR',
+    amount,
+    date: new Date().toLocaleDateString('ru'),
+    status: 'новый'
+  });
+  saveState(ST);
+  closeModal('qrModal');
+  if(currentQrType === 'tip') showToast('💰 Чаевые отправлены! Спасибо!');
+  else if(currentQrType === 'track') showToast(`🎵 Трек "${track || '?'}" заказан!`);
+  else if(currentQrType === 'dance') showToast('💃 Танец заказан!');
+  else showToast('✉️ Сообщение отправлено DJ!');
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONTACT FORMS
+// ═══════════════════════════════════════════════════════
+function sendContactForm() {
+  const name = document.getElementById('cName').value.trim();
+  const contact = document.getElementById('cContact').value.trim();
+  const msg = document.getElementById('cMsg').value.trim();
+  if(!name || !msg) { showToast('Заполните имя и сообщение', 'error'); return; }
+  ST.messages.push({id:ST.nextId++,from:name,contact,text:msg,date:new Date().toLocaleDateString('ru'),type:'Контактная форма'});
+  saveState(ST);
+  document.getElementById('cName').value = '';
+  document.getElementById('cContact').value = '';
+  document.getElementById('cMsg').value = '';
+  showToast('✓ Сообщение отправлено!');
+}
+function sendContactForm2() {
+  const name = document.getElementById('c2Name').value.trim();
+  const contact = document.getElementById('c2Contact').value.trim();
+  if(!name || !contact) { showToast('Заполните имя и контакт', 'error'); return; }
+  ST.messages.push({id:ST.nextId++,from:name,contact,text:document.getElementById('c2Msg').value,date:new Date().toLocaleDateString('ru'),type:document.getElementById('c2Type').value});
+  saveState(ST);
+  document.getElementById('c2Name').value = '';
+  document.getElementById('c2Contact').value = '';
+  document.getElementById('c2Msg').value = '';
+  showToast('✓ Заявка отправлена!');
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN
+// ═══════════════════════════════════════════════════════
+function adminLogin() {
+  const pass = document.getElementById('adminPass').value;
+  if(pass === ADMIN_PASS) {
+    adminLogged = true;
+    document.getElementById('adminLoginWrap').style.display = 'none';
+    document.getElementById('adminPanelWrap').style.display = 'block';
+    renderAdmin();
+  } else {
+    document.getElementById('adminErr').style.display = 'block';
+  }
+}
+function adminLogout() {
+  adminLogged = false;
+  document.getElementById('adminLoginWrap').style.display = 'block';
+  document.getElementById('adminPanelWrap').style.display = 'none';
+  document.getElementById('adminPass').value = '';
+  document.getElementById('adminErr').style.display = 'none';
+}
+function renderAdmin() {
+  if(!adminLogged) return;
+  renderStats();
+  renderAdminOrders();
+  renderAdminReviews();
+  renderAdminPrices();
+  renderAdminGallery();
+  renderAdminMessages();
+}
+function renderStats() {
+  const el = document.getElementById('adminStats');
+  if (!el) return;
+  const totalRevenue = ST.orders.reduce((s,o)=>s+(parseInt(o.amount)||0),0);
+  el.innerHTML = `
+    <div class="stat-card"><div class="stat-num">${ST.orders.length}</div><div class="stat-label">Всего заказов</div></div>
+    <div class="stat-card"><div class="stat-num">${totalRevenue.toLocaleString('ru')} ₽</div><div class="stat-label">Оборот</div></div>
+    <div class="stat-card"><div class="stat-num">${ST.reviews.filter(r=>!r.approved).length}</div><div class="stat-label">Ожидают проверки</div></div>
+    <div class="stat-card"><div class="stat-num">${ST.messages.length}</div><div class="stat-label">Сообщений</div></div>
+    <div class="stat-card"><div class="stat-num">${ST.gallery.length}</div><div class="stat-label">Фото в галерее</div></div>
+    <div class="stat-card"><div class="stat-num">${ST.reviews.filter(r=>r.approved).length}</div><div class="stat-label">Одобрено отзывов</div></div>
+  `;
+}
+function renderAdminOrders() {
+  const el = document.getElementById('ordersBody');
+  if (!el) return;
+  if(!ST.orders.length) { el.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">Заказов пока нет</td></tr>'; return; }
+  el.innerHTML = [...ST.orders].reverse().map(o => `<tr>
+    <td style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted)">#${o.id}</td>
+    <td>${o.type}</td>
+    <td>${o.client}</td>
+    <td style="color:var(--muted);font-size:.82rem;max-width:180px">${o.details}</td>
+    <td style="font-family:var(--font-mono);color:var(--cyan)">${typeof o.amount === 'number' ? o.amount.toLocaleString('ru')+' ₽' : o.amount}</td>
+    <td style="color:var(--muted);font-size:.82rem">${o.date}</td>
+    <td><span class="tag ${o.status==='новый'?'tag-orange':'tag-green'}">${o.status}</span></td>
+  </tr>`).join('');
+}
+function renderAdminReviews() {
+  const el = document.getElementById('adminReviewsList');
+  if (!el) return;
+  if(!ST.reviews.length) { el.innerHTML = '<p style="color:var(--muted)">Отзывов нет</p>'; return; }
+  el.innerHTML = [...ST.reviews].reverse().map(r => `
+    <div style="padding:1rem 0;border-bottom:1px solid var(--glass-border);display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div style="display:flex;gap:.7rem;align-items:center;margin-bottom:.3rem">
+          <span style="font-weight:600;font-size:.9rem">${r.name}</span>
+          <span style="color:var(--gold);font-size:.85rem">${starsHtml(r.rating)}</span>
+          <span class="tag ${r.approved?'tag-green':'tag-orange'}">${r.approved?'одобрен':'на проверке'}</span>
+        </div>
+        <div style="color:var(--muted);font-size:.85rem">${r.text}</div>
+        <div style="color:var(--muted);font-size:.75rem;margin-top:.3rem">${r.date}${r.event?' · '+r.event:''}</div>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-shrink:0">
+        ${!r.approved ? `<button class="btn btn-primary btn-sm" onclick="approveReview(${r.id})">✓ Одобрить</button>` : `<button class="btn btn-ghost btn-sm" onclick="hideReview(${r.id})">Скрыть</button>`}
+        <button class="btn btn-sm" style="background:rgba(255,45,120,.1);border:1px solid rgba(255,45,120,.2);color:var(--pink)" onclick="deleteReview(${r.id})">Удалить</button>
+      </div>
+    </div>`).join('');
+}
+function approveReview(id) {
+  const r = ST.reviews.find(r=>r.id===id);
+  if(r) { r.approved = true; saveState(ST); renderAdminReviews(); renderStats(); showToast('✓ Отзыв одобрен'); }
+}
+function hideReview(id) {
+  const r = ST.reviews.find(r=>r.id===id);
+  if(r) { r.approved = false; saveState(ST); renderAdminReviews(); renderStats(); showToast('Отзыв скрыт'); }
+}
+function deleteReview(id) {
+  ST.reviews = ST.reviews.filter(r=>r.id!==id);
+  saveState(ST); renderAdminReviews(); renderStats(); showToast('Отзыв удалён');
+}
+function renderAdminPrices() {
+  // Training prices
+  const tp = document.getElementById('trainPricesEdit');
+  if(tp) tp.innerHTML = `
+    <div class="price-edit"><label>Базовый курс</label><input class="price-input" id="pe-basic" type="number" value="${ST.prices.training.basic}"><span style="color:var(--muted)">₽</span></div>
+    <div class="price-edit"><label>Средний курс</label><input class="price-input" id="pe-middle" type="number" value="${ST.prices.training.middle}"><span style="color:var(--muted)">₽</span></div>
+    <div class="price-edit"><label>Премиум курс</label><input class="price-input" id="pe-premium" type="number" value="${ST.prices.training.premium}"><span style="color:var(--muted)">₽</span></div>
+  `;
+  // DJ prices
+  const dp = document.getElementById('djPricesEdit');
+  if(dp) dp.innerHTML = ST.prices.dj.map((item, i) => `
+    <div class="price-edit">
+      <label>${item.name}</label>
+      <input class="price-input" id="dj-price-${i}" type="number" value="${item.price}">
+      <span style="color:var(--muted)">₽</span>
+    </div>`).join('');
+}
+function savePrices() {
+  ST.prices.training.basic = parseInt(document.getElementById('pe-basic').value) || ST.prices.training.basic;
+  ST.prices.training.middle = parseInt(document.getElementById('pe-middle').value) || ST.prices.training.middle;
+  ST.prices.training.premium = parseInt(document.getElementById('pe-premium').value) || ST.prices.training.premium;
+  saveState(ST);
+  showToast('✓ Цены на обучение сохранены');
+}
+function saveDjPrices() {
+  ST.prices.dj.forEach((item, i) => {
+    const inp = document.getElementById('dj-price-'+i);
+    if(inp) item.price = parseInt(inp.value) || item.price;
+  });
+  saveState(ST);
+  showToast('✓ Прайс DJ сохранён');
+}
+function renderAdminMessages() {
+  const el = document.getElementById('messagesList');
+  if (!el) return;
+  if(!ST.messages.length) { el.innerHTML = '<p style="color:var(--muted)">Сообщений нет</p>'; return; }
+  el.innerHTML = [...ST.messages].reverse().map(m => `
+    <div style="padding:1rem;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:.8rem">
+      <div style="display:flex;gap:1rem;justify-content:space-between;flex-wrap:wrap;margin-bottom:.4rem">
+        <span style="font-weight:600">${m.from} <span style="color:var(--muted);font-weight:400">· ${m.contact}</span></span>
+        <span style="color:var(--muted);font-size:.78rem">${m.date} · ${m.type}</span>
+      </div>
+      <div style="color:var(--muted);font-size:.87rem">${m.text || '(без текста)'}</div>
+    </div>`).join('');
+}
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('admin-'+tab).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast toast-${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ═══════════════════════════════════════════════════════
+//  CURSOR GLOW
+// ═══════════════════════════════════════════════════════
+document.addEventListener('mousemove', e => {
+  const el = document.getElementById('cursorGlow');
+  el.style.left = e.clientX + 'px';
+  el.style.top = e.clientY + 'px';
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+showPage('home');
+setTimeout(() => {
+  document.querySelectorAll('.reveal').forEach(el => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+    },{threshold:.1});
+    obs.observe(el);
+  });
+}, 200);
+</script>
+</body>
+</html>
