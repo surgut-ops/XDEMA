@@ -1,8 +1,14 @@
-FROM node:18-alpine AS base
+FROM node:18-bullseye AS base
 WORKDIR /app
 
-# Устанавливаем build-инструменты один раз для всех стадий
-RUN apk add --no-cache python3 make g++
+# Устанавливаем build-инструменты и OpenSSL один раз для всех стадий
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    openssl \
+    ca-certificates \
+    python3 \
+    build-essential \
+  && rm -rf /var/lib/apt/lists/*
 
 # Зависимости + сборка
 FROM base AS builder
