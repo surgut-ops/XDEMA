@@ -24,9 +24,9 @@
 
 ### Вариант А: Root Directory = backend
 
-1. **Settings** → **Source** для сервиса **XDEMA**.
-2. **Root Directory:** **`backend`** (без слэша в начале, не `/backend`).
-3. **Dockerfile Path:** **`Dockerfile`** (относительно Root Directory, не `/backend/Dockerfile`).
+1. **Settings** → **Source**: **Root Directory** = **`backend`** (без слэша, не `/backend`).
+2. **Settings** → **Build**: **Dockerfile Path** = **`Dockerfile`** (одно слово; не `/backend/Dockerfile` — иначе контекст сборки станет корень репо, в логах будет `> next build` и ошибка `dist/main.js missing`).
+3. В папке `backend` лежит `railway.json` с `"dockerfilePath": "Dockerfile"` — при деплое из `backend` это подхватится автоматически.
 4. Сохрани → **Redeploy**.
 
 ### Вариант Б: сборка из корня (если А не сработал)
