@@ -7,6 +7,7 @@ import { MusicCursor } from '@/components/ui/MusicCursor';
 import { NoiseOverlay } from '@/components/ui/NoiseOverlay';
 import { SmartPopup } from '@/components/ui/SmartPopup';
 import { PerformanceToggle } from '@/components/ui/PerformanceToggle';
+import { AuthModal } from '@/components/ui/AuthModal';
 
 const syne = Syne({ subsets: ['latin'], variable: '--font-syne', display: 'swap', weight: ['400','600','700','800'] });
 const dm = DM_Sans({ subsets: ['latin'], variable: '--font-dm', display: 'swap', weight: ['300','400','500','600','700'] });
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PerformanceToggle />
           {children}
           <SmartPopup />
+          <AuthModal />
         </Providers>
       </body>
     </html>
