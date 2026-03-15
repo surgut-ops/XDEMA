@@ -12,7 +12,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     // Apply saved performance mode
     if (perfMode) document.documentElement.classList.add('perf');
     // Load settings from API
-    settingsApi.getAll().then(setSettings).catch(() => {});
+    settingsApi
+      .getAll()
+      .then((res: any) => setSettings(res as any))
+      .catch(() => {});
     // Apply saved theme
     const theme = localStorage.getItem('xdema-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', theme);

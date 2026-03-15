@@ -19,7 +19,12 @@ export function SectionHead({ label, title, sub }: { label:string; title:string;
 export function Pricing() {
   const { settings } = useSettingsStore();
   const [courses, setCourses] = useState<any[]>([]);
-  useEffect(() => { coursesApi.getAll().then(setCourses).catch(()=>{}); }, []);
+  useEffect(() => {
+    coursesApi
+      .getAll()
+      .then((res: any) => setCourses(res as any[]))
+      .catch(() => {});
+  }, []);
   const { openPay } = useModalStore();
   const visible = settings.blocks?.training !== false;
   if (!visible) return null;
@@ -104,7 +109,15 @@ export function GallerySection() {
   const [items, setItems] = useState<any[]>([]);
   const visible = settings.blocks?.gallery !== false;
   const gallS = settings.gallSettings || {cols:3,h:175};
-  useEffect(() => { galleryApi.getAll().then((d:any[])=>setItems(d.slice(0,6))).catch(()=>{}); },[]);
+  useEffect(() => {
+    galleryApi
+      .getAll()
+      .then((res: any) => {
+        const d = res as any[];
+        setItems(d.slice(0, 6));
+      })
+      .catch(() => {});
+  }, []);
   if (!visible) return null;
   return (
     <section className="section py-20">
@@ -127,7 +140,12 @@ export function Reviews() {
   const { settings } = useSettingsStore();
   const [reviews, setReviews] = useState<any[]>([]);
   const visible = settings.blocks?.reviews !== false;
-  useEffect(() => { reviewsApi.getApproved().then(setReviews).catch(()=>{}); },[]);
+  useEffect(() => {
+    reviewsApi
+      .getApproved()
+      .then((res: any) => setReviews(res as any[]))
+      .catch(() => {});
+  }, []);
   if (!visible) return null;
   return (
     <section className="section py-20">
