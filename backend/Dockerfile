@@ -1,6 +1,8 @@
-# XDEMA Backend — NestJS (для Railway)
 FROM node:18-alpine AS base
 WORKDIR /app
+
+# Устанавливаем build-инструменты один раз для всех стадий
+RUN apk add --no-cache python3 make g++
 
 # Зависимости + сборка
 FROM base AS builder
