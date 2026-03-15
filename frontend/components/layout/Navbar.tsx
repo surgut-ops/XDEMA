@@ -1,10 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useUserStore, useModalStore } from '@/store';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function Navbar() {
+  const router = useRouter();
   const { user, logout, isAdmin } = useUserStore();
   const { openAuth } = useModalStore();
   const [mob, setMob] = useState(false);
@@ -17,8 +19,8 @@ export function Navbar() {
   }, []);
 
   const handleAuth = () => {
-    if (isAdmin()) window.location.href = '/admin';
-    else if (user) window.location.href = '/account';
+    if (isAdmin()) router.push('/admin');
+    else if (user) router.push('/account');
     else openAuth();
   };
 

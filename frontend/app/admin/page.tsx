@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useUserStore } from '@/store';
 import { useRouter } from 'next/navigation';
-import { ordersApi, reviewsApi, galleryApi, settingsApi, usersApi, messagesApi, adminNotifApi } from '@/lib/api';
+import { ordersApi, reviewsApi, galleryApi, settingsApi, usersApi, messagesApi, adminNotifApi, coursesApi } from '@/lib/api';
 import { authApi } from '@/lib/api';
 
 type AdminTab = 'dashboard'|'orders'|'reviews'|'prices'|'gallery'|'materials'|'blocks'|'editor'|'herobg'|'popup'|'liveqr'|'notify'|'contacts'|'users'|'messages'|'telegram'|'instructions';
@@ -52,6 +53,9 @@ export default function AdminPage() {
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-[200px] border-r sticky top-0 h-screen overflow-y-auto" style={{background:'rgba(7,7,14,.96)',borderColor:'var(--border)'}}>
         <div className="font-syne font-bold text-[.92rem] tracking-[.1em] px-5 py-4 border-b" style={{color:'var(--c1)',borderColor:'var(--border)'}}>ADMIN</div>
+        <Link href="/" className="flex items-center gap-2 px-5 py-2.5 text-[.81rem] font-medium transition-all border-b hover:text-[var(--c1)]" style={{color:'var(--muted)',borderColor:'var(--border)'}}>
+          ← На главную
+        </Link>
         {LINKS.map(([id, label]) => (
           <button key={id} onClick={()=>setTab(id)}
             className={`text-left px-5 py-2.5 text-[.81rem] font-medium transition-all ${tab===id?'text-[var(--c1)] bg-[rgba(0,229,255,.08)]':''}`}
@@ -81,13 +85,14 @@ export default function AdminPage() {
 function AdminContent({ tab }: { tab: AdminTab }) {
   const [data, setData] = useState<any>({});
   const load = async () => {
-    const [orders, reviews, users, msgs] = await Promise.all([
+    const [orders, reviews, users, msgs, galleryCount] = await Promise.all([
       ordersApi.getAll().catch(()=>[]),
       reviewsApi.getAll().catch(()=>[]),
       usersApi.getAll().catch(()=>[]),
       messagesApi.getAll().catch(()=>[]),
+      galleryApi.getAll().then((r: any) => (Array.isArray(r) ? r.length : 0)).catch(()=>0),
     ]);
-    setData({ orders, reviews, users, msgs });
+    setData({ orders, reviews, users, msgs, galleryCount });
   };
   useEffect(() => { load(); }, [tab]);
 
@@ -98,18 +103,30 @@ function AdminContent({ tab }: { tab: AdminTab }) {
   if (tab === 'messages') return <MessagesTab msgs={data.msgs||[]} />;
   if (tab === 'gallery') return <GalleryTab />;
   if (tab === 'instructions') return <InstructionsTab />;
+  if (tab === 'prices') return <PricesTab />;
+  if (tab === 'contacts') return <ContactsAdminTab />;
+  if (tab === 'blocks') return <BlocksTab />;
+  if (tab === 'editor') return <EditorTab />;
+  if (tab === 'popup') return <PopupTab />;
+  if (tab === 'notify') return <NotifyTab />;
+  if (tab === 'herobg') return <HeroBgTab />;
+  if (tab === 'telegram') return <TelegramTab />;
+  if (tab === 'liveqr') return <LiveQRTab />;
+  if (tab === 'materials') return <MaterialsTab />;
   return <div className="text-center py-20" style={{color:'var(--muted)'}}>Раздел в разработке</div>;
 }
 
 function DashboardTab({ data }: any) {
+  const turnover = (data.orders || []).reduce((s: number, o: any) => s + (o.amount || 0), 0);
   const stats = [
     {label:'Заказов',val:data.orders?.length||0},{label:'Пользователей',val:data.users?.length||0},
     {label:'На модерации',val:data.reviews?.filter((r:any)=>!r.approved).length||0},{label:'Сообщений',val:data.msgs?.length||0},
+    {label:'Оборот',val:`${turnover.toLocaleString('ru')} ₽`},{label:'Фото',val:data.galleryCount??0},
   ];
   return (
     <div>
       <h2 className="font-syne font-bold text-[1.45rem] mb-5">Dashboard</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         {stats.map(s=><div key={s.label} className="rounded-xl border p-5 text-center" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
           <div className="font-syne font-bold text-[1.9rem]" style={{color:'var(--c1)'}}>{s.val}</div>
           <div className="text-[.72rem] mt-1" style={{color:'var(--muted)'}}>{s.label}</div>
@@ -139,6 +156,8 @@ function DashboardTab({ data }: any) {
 }
 
 function OrdersTab({ orders, reload }: any) {
+  const [filter, setFilter] = useState<'all'|'COURSE'|'DJ_BOOKING'|'QR_TRACK'>('all');
+  const filtered = filter === 'all' ? orders : orders.filter((o: any) => o.type === filter);
   const cycleStatus = async (id:number) => {
     const ss = ['PENDING','PAID','IN_PROGRESS','COMPLETED','CANCELLED'];
     const o = orders.find((x:any)=>x.id===id);
@@ -149,11 +168,16 @@ function OrdersTab({ orders, reload }: any) {
   return (
     <div>
       <h2 className="font-syne font-bold text-[1.45rem] mb-5">Заказы</h2>
+      <div className="flex gap-2 mb-4">
+        {[['all','Все'],['COURSE','Курсы'],['DJ_BOOKING','Брони'],['QR_TRACK','QR']].map(([v,l])=>(
+          <button key={v} onClick={()=>setFilter(v as any)} className={`px-3 py-1.5 rounded-lg text-sm ${filter===v?'text-black':''}`} style={{background:filter===v?'var(--c1)':'var(--glass2)',border:'1px solid var(--border)'}}>{l}</button>
+        ))}
+      </div>
       <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
         <div className="overflow-x-auto">
           <table className="w-full text-[.82rem]">
             <thead><tr className="border-b" style={{borderColor:'var(--border)'}}>{['#','Тип','Клиент','Email','Сумма','Статус',''].map(h=><th key={h} className="text-left py-2 px-2 text-[.67rem] uppercase tracking-[.1em]" style={{color:'var(--muted)'}}>{h}</th>)}</tr></thead>
-            <tbody>{orders.map((o:any)=>(
+            <tbody>{filtered.map((o:any)=>(
               <tr key={o.id} className="border-b" style={{borderColor:'rgba(255,255,255,.03)'}}>
                 <td className="py-2 px-2 font-mono text-[.7rem]" style={{color:'var(--muted)'}}>#{o.id}</td>
                 <td className="py-2 px-2">{o.type}</td><td className="py-2 px-2">{o.clientName}</td>
@@ -245,20 +269,14 @@ function GalleryTab() {
   const [url, setUrl] = useState('');
   const [label, setLabel] = useState('');
 
-  useEffect(() => {
-    galleryApi
-      .getAll()
-      .then((res: any) => setItems(res as any[]))
-      .catch(() => {});
-  }, []);
+  const reload = () => galleryApi.getAll().then((res: any) => setItems(res as any[])).catch(() => {});
+
+  useEffect(() => { reload(); }, []);
 
   const addUrl = async () => {
     if (!url) return;
     await galleryApi.addUrl(label || 'Photo', url);
-    galleryApi
-      .getAll()
-      .then((res: any) => setItems(res as any[]))
-      .catch(() => {});
+    reload();
     setUrl('');
     setLabel('');
   };
@@ -266,6 +284,10 @@ function GalleryTab() {
   return (
     <div>
       <h2 className="font-syne font-bold text-[1.45rem] mb-5">Галерея</h2>
+      <div className="border-2 border-dashed rounded-xl p-8 text-center mb-4 transition-all" style={{borderColor:'var(--border)'}} onDragOver={e=>{e.preventDefault();(e.currentTarget as HTMLElement).style.borderColor='var(--c1)';}} onDragLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='var(--border)';}} onDrop={async e=>{e.preventDefault();(e.currentTarget as HTMLElement).style.borderColor='var(--border)';const file=e.dataTransfer.files[0];if(file){await galleryApi.upload(file,file.name.split('.')[0]);reload();}}}>
+        <input type="file" accept="image/*" className="hidden" id="gfile" onChange={async e=>{const f=e.target.files?.[0];if(f){await galleryApi.upload(f,f.name.split('.')[0]);reload();e.target.value='';}}} />
+        <label htmlFor="gfile" className="block text-[.85rem] cursor-pointer" style={{color:'var(--muted)'}}>+ Загрузить (JPG/PNG/WEBP, до 5MB)</label>
+      </div>
       <div className="rounded-xl border p-5 mb-4" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
         <div className="font-syne font-bold text-base mb-3">Добавить фото по URL</div>
         <div className="flex gap-3 flex-wrap">
@@ -296,16 +318,319 @@ function GalleryTab() {
             <button
               onClick={async () => {
                 await galleryApi.delete(g.id);
-                galleryApi
-                  .getAll()
-                  .then((res: any) => setItems(res as any[]))
-                  .catch(() => {});
+                reload();
               }}
               className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white text-[.65rem]"
               style={{ background: 'var(--c2)' }}
             >
               ✕
             </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PricesTab() {
+  const [djPrices, setDjPrices] = useState<any[]>([]);
+  const [qrPrices, setQrPrices] = useState<any>({});
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    settingsApi.get('djPrices').then((r: any) => setDjPrices(Array.isArray(r) ? r : (r?.value ? r.value : []) || [])).catch(() => {});
+    settingsApi.get('qrPrices').then((r: any) => setQrPrices(r && typeof r === 'object' ? r : (r?.value ? r.value : {}) || {})).catch(() => {});
+  }, []);
+  const saveDj = async () => { await settingsApi.set('djPrices', djPrices); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const saveQr = async () => { await settingsApi.set('qrPrices', qrPrices); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Цены</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5 mb-4" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-base mb-4">Прайс DJ</div>
+        {djPrices.map((item: any, i: number) => (
+          <div key={i} className="flex gap-3 mb-2 items-center">
+            <input className="form-control flex-1" value={item.n} onChange={e => { const arr = [...djPrices]; arr[i] = {...arr[i], n: e.target.value}; setDjPrices(arr); }} placeholder="Название услуги" />
+            <input className="form-control w-28" type="number" value={item.p} onChange={e => { const arr = [...djPrices]; arr[i] = {...arr[i], p: +e.target.value}; setDjPrices(arr); }} placeholder="Цена ₽" />
+            <button onClick={() => setDjPrices(djPrices.filter((_: any, j: number) => j !== i))} className="px-2 py-1 rounded text-sm" style={{background:'rgba(255,45,120,.1)',color:'var(--c2)'}}>✕</button>
+          </div>
+        ))}
+        <div className="flex gap-3 mt-3">
+          <button onClick={() => setDjPrices([...djPrices, {n:'',p:0}])} className="px-4 py-2 rounded-lg text-sm" style={{background:'var(--glass2)',border:'1px solid var(--border)',color:'var(--muted)'}}>+ Добавить строку</button>
+          <button onClick={saveDj} className="px-4 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить прайс DJ</button>
+        </div>
+      </div>
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-base mb-4">Цены Live QR</div>
+        {[['track','Трек'],['dance','Танец'],['tip','Чаевые'],['msg','Сообщение']].map(([k,label]) => (
+          <div key={k} className="flex gap-3 mb-3 items-center">
+            <label className="w-28 text-[.82rem]" style={{color:'var(--muted)'}}>{label}</label>
+            <input className="form-control w-32" type="number" value={qrPrices[k] ?? 0} onChange={e => setQrPrices({...qrPrices, [k]: +e.target.value})} />
+            <span className="text-[.82rem]" style={{color:'var(--muted)'}}>₽</span>
+          </div>
+        ))}
+        <button onClick={saveQr} className="px-4 py-2 rounded-lg text-sm font-semibold text-black mt-2" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить QR цены</button>
+      </div>
+    </div>
+  );
+}
+
+function ContactsAdminTab() {
+  const [ct, setCt] = useState<any>({});
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { settingsApi.get('contacts').then((r: any) => setCt(r && typeof r === 'object' ? r : {})).catch(() => {}); }, []);
+  const save = async () => { await settingsApi.set('contacts', ct); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const fields = [['phone','Телефон','Телефон'],['email','Email','Email'],['city','Город','Город'],['insta','Instagram URL','https://instagram.com/...'],['tg','Telegram URL','https://t.me/...'],['yt','YouTube URL','https://youtube.com/...'],['vk','VK URL','https://vk.com/...']];
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Контакты</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        {fields.map(([k, label, ph]) => (
+          <div key={k} className="mb-3">
+            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>{label}</label>
+            <input className="form-control" value={ct[k] || ''} onChange={e => setCt({...ct, [k]: e.target.value})} placeholder={ph} />
+          </div>
+        ))}
+        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black mt-2" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить контакты</button>
+      </div>
+    </div>
+  );
+}
+
+function BlocksTab() {
+  const defaultBlocks = {training:true,services:true,gallery:true,reviews:true,faq:true,contacts:true};
+  const [blocks, setBlocks] = useState<any>(defaultBlocks);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { settingsApi.get('blocks').then((r: any) => setBlocks(r && typeof r === 'object' ? r : defaultBlocks)).catch(() => {}); }, []);
+  const save = async () => { await settingsApi.set('blocks', blocks); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const BLOCK_LABELS: Record<string,string> = {training:'Обучение',services:'Услуги DJ',gallery:'Галерея',reviews:'Отзывы',faq:'FAQ',contacts:'Контакты'};
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Блоки на главной</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        {Object.entries(BLOCK_LABELS).map(([k, label]) => (
+          <div key={k} className="flex items-center justify-between py-3 border-b" style={{borderColor:'var(--border)'}}>
+            <span className="text-[.9rem]">{label}</span>
+            <button onClick={() => setBlocks({...blocks,[k]:!blocks[k]})} className="w-11 h-6 rounded-full transition-all relative" style={{background:blocks[k]?'var(--c1)':'rgba(255,255,255,.1)'}}>
+              <span className="absolute top-0.5 transition-all w-5 h-5 rounded-full bg-white" style={{left:blocks[k]?'calc(100% - 22px)':'2px'}} />
+            </button>
+          </div>
+        ))}
+        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black mt-4" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить</button>
+      </div>
+    </div>
+  );
+}
+
+function EditorTab() {
+  const [hero, setHero] = useState<any>({});
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { settingsApi.get('hero').then((r: any) => setHero(r && typeof r === 'object' ? r : {})).catch(() => {}); }, []);
+  const save = async () => { await settingsApi.set('hero', hero); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Редактор текстов</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        {[['title','Заголовок (XDEMA)'],['sub1','Подзаголовок 1'],['sub2','Подзаголовок 2']].map(([k,label]) => (
+          <div key={k} className="mb-3">
+            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>{label}</label>
+            <input className="form-control" value={hero[k]||''} onChange={e => setHero({...hero,[k]:e.target.value})} />
+          </div>
+        ))}
+        <div className="flex gap-4 mb-3">
+          <div className="flex-1">
+            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Размер заголовка (rem)</label>
+            <input className="form-control" type="number" step="0.1" value={hero.titleSize??9} onChange={e => setHero({...hero,titleSize:+e.target.value})} />
+          </div>
+          <div className="flex-1">
+            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Размер подзаголовка</label>
+            <input className="form-control" type="number" step="0.05" value={hero.subSize??1.05} onChange={e => setHero({...hero,subSize:+e.target.value})} />
+          </div>
+        </div>
+        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить</button>
+      </div>
+    </div>
+  );
+}
+
+function PopupTab() {
+  const [p, setP] = useState<any>({});
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { settingsApi.get('popupSettings').then((r: any) => setP(r && typeof r === 'object' ? r : {})).catch(() => {}); }, []);
+  const save = async () => { await settingsApi.set('popupSettings', p); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Smart Popup</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="flex items-center justify-between mb-4 pb-3 border-b" style={{borderColor:'var(--border)'}}>
+          <span className="font-semibold">Включён</span>
+          <button onClick={() => setP({...p,enabled:!p.enabled})} className="w-11 h-6 rounded-full transition-all relative" style={{background:p.enabled?'var(--c1)':'rgba(255,255,255,.1)'}}>
+            <span className="absolute top-0.5 transition-all w-5 h-5 rounded-full bg-white" style={{left:p.enabled?'calc(100% - 22px)':'2px'}} />
+          </button>
+        </div>
+        {[['tag','Тег (напр. АКЦИЯ)'],['title','Заголовок'],['text','Текст'],['btnText','Текст кнопки'],['img','URL изображения']].map(([k,label]) => (
+          <div key={k} className="mb-3">
+            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>{label}</label>
+            {k==='text' ? <textarea className="form-control" rows={2} value={p[k]||''} onChange={e=>setP({...p,[k]:e.target.value})} /> : <input className="form-control" value={p[k]||''} onChange={e=>setP({...p,[k]:e.target.value})} />}
+          </div>
+        ))}
+        <div className="mb-3">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Задержка (сек)</label>
+          <input className="form-control w-28" type="number" value={p.delay??35} onChange={e=>setP({...p,delay:+e.target.value})} />
+        </div>
+        <div className="mb-4">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Действие кнопки</label>
+          <select className="form-control" value={p.action||'training'} onChange={e=>setP({...p,action:e.target.value})} style={{background:'var(--bg2)'}}>
+            <option value="training">→ Обучение</option>
+            <option value="services">→ DJ услуги</option>
+            <option value="live">→ Live QR</option>
+            <option value="book">→ Открыть форму бронирования</option>
+          </select>
+        </div>
+        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить popup</button>
+      </div>
+    </div>
+  );
+}
+
+function NotifyTab() {
+  const [notifs, setNotifs] = useState<any[]>([]);
+  const [form, setForm] = useState({title:'',text:'',imageUrl:'',targetAll:true,targetCourse:'',userId:''});
+  const [sent, setSent] = useState(false);
+  const load = () => adminNotifApi.getAll().then((r: any) => setNotifs(Array.isArray(r)?r:[])).catch(()=>{});
+  useEffect(() => { load(); }, []);
+  const send = async () => {
+    await adminNotifApi.send({...form, userId: form.userId ? +form.userId : undefined});
+    setSent(true); setTimeout(() => setSent(false), 2000);
+    setForm({title:'',text:'',imageUrl:'',targetAll:true,targetCourse:'',userId:''});
+    load();
+  };
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Уведомления пользователям</h2>
+      {sent && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Отправлено</div>}
+      <div className="rounded-xl border p-5 mb-4" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-base mb-4">Новое уведомление</div>
+        {[['title','Заголовок'],['text','Текст'],['imageUrl','URL изображения (необязательно)']].map(([k,label]) => (
+          <div key={k} className="mb-3">
+            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>{label}</label>
+            {k==='text' ? <textarea className="form-control" rows={3} value={(form as any)[k]} onChange={e=>setForm({...form,[k]:e.target.value})} /> : <input className="form-control" value={(form as any)[k]} onChange={e=>setForm({...form,[k]:e.target.value})} />}
+          </div>
+        ))}
+        <div className="mb-4">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Кому</label>
+          <select className="form-control" value={form.targetCourse || (form.userId ? 'user' : 'all')} onChange={e => { const v = e.target.value; if (v==='all') setForm({...form,targetAll:true,targetCourse:'',userId:''}); else if (v==='user') setForm({...form,targetAll:false,targetCourse:''}); else setForm({...form,targetAll:false,targetCourse:v,userId:''}); }} style={{background:'var(--bg2)'}}>
+            <option value="all">Всем пользователям</option>
+            <option value="basic">Базовый курс</option>
+            <option value="middle">Средний курс</option>
+            <option value="premium">Премиум курс</option>
+            <option value="user">Конкретному пользователю</option>
+          </select>
+        </div>
+        <button onClick={send} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Отправить</button>
+      </div>
+      <div className="space-y-2">
+        {notifs.map((n:any) => (
+          <div key={n.id} className="flex justify-between items-start p-3 rounded-xl" style={{background:'rgba(255,255,255,.02)',border:'1px solid var(--border)'}}>
+            <div><div className="font-semibold text-[.87rem]">{n.title}</div><div className="text-[.77rem]" style={{color:'var(--muted)'}}>{n.text?.slice(0,80)}</div></div>
+            <button onClick={async()=>{await adminNotifApi.delete(n.id);load();}} className="px-2 py-1 rounded text-[.75rem] flex-shrink-0 ml-3" style={{background:'rgba(255,45,120,.1)',color:'var(--c2)'}}>Удалить</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HeroBgTab() {
+  const defaultBg = {type:'preset',id:'orbs'};
+  const [bg, setBg] = useState<any>(defaultBg);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { settingsApi.get('heroBg').then((r:any) => setBg(r && typeof r === 'object' ? r : defaultBg)).catch(()=>{}); }, []);
+  const save = async () => { await settingsApi.set('heroBg', bg); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const PRESETS = [['orbs','Орбы'],['sonic','Волны'],['aurora','Аврора'],['vinyl','Виниловые кольца'],['neon','Неон'],['nebula','Туманность']];
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Фон главной</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-sm mb-3">Пресет анимации</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
+          {PRESETS.map(([id,label]) => (
+            <button key={id} onClick={() => setBg({type:'preset',id})} className="py-2 px-3 rounded-lg text-[.82rem] font-medium transition-all text-left" style={{background:bg.id===id?'rgba(0,229,255,.12)':'var(--glass2)',border:`1px solid ${bg.id===id?'rgba(0,229,255,.3)':'var(--border)'}`,color:bg.id===id?'var(--c1)':'var(--text2)'}}>{label}</button>
+          ))}
+        </div>
+        <div className="border-t pt-4 mb-4" style={{borderColor:'var(--border)'}}>
+          <div className="font-syne font-bold text-sm mb-3">Или своё изображение</div>
+          <input className="form-control mb-2" placeholder="URL изображения" value={bg.type==='image'?bg.url||'':''} onChange={e=>setBg({type:'image',url:e.target.value,overlay:55})} />
+          {bg.type==='image' && (
+            <div>
+              <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Затемнение: {bg.overlay??55}%</label>
+              <input type="range" min="0" max="90" value={bg.overlay??55} onChange={e=>setBg({...bg,overlay:+e.target.value})} className="w-full" />
+            </div>
+          )}
+        </div>
+        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Применить фон</button>
+      </div>
+    </div>
+  );
+}
+
+function TelegramTab() {
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Telegram уведомления</h2>
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <p className="text-[.88rem] mb-4" style={{color:'var(--muted)'}}>Telegram бот настраивается через переменные окружения Railway:</p>
+        {[['TELEGRAM_BOT_TOKEN','Токен от @BotFather'],['TELEGRAM_CHAT_ID','ID чата/группы (-100...)']].map(([k,desc]) => (
+          <div key={k} className="mb-3 p-3 rounded-lg" style={{background:'rgba(0,0,0,.4)',border:'1px solid var(--border)'}}>
+            <div className="font-mono text-[.78rem] mb-1" style={{color:'var(--c1)'}}>{k}</div>
+            <div className="text-[.75rem]" style={{color:'var(--muted)'}}>{desc}</div>
+          </div>
+        ))}
+        <p className="text-[.8rem] mt-4" style={{color:'var(--muted)'}}>Уведомления автоматически приходят при новом заказе, платеже, отзыве и сообщении.</p>
+      </div>
+    </div>
+  );
+}
+
+function LiveQRTab() {
+  const [title, setTitle] = useState('');
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { settingsApi.get('liveQrTitle').then((r: any) => setTitle(typeof r === 'string' ? r : (r?.value ?? ''))).catch(() => {}); }, []);
+  const save = async () => { await settingsApi.set('liveQrTitle', title); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Live QR настройки</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="mb-3">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Заголовок страницы Live QR</label>
+          <input className="form-control" value={title} onChange={e=>setTitle(e.target.value)} placeholder="Live QR" />
+        </div>
+        <p className="text-[.8rem] mb-4" style={{color:'var(--muted)'}}>Цены для карточек (Трек, Танец, Чаевые, Сообщение) задаются в разделе <strong>Цены</strong> → Цены Live QR.</p>
+        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить</button>
+      </div>
+    </div>
+  );
+}
+
+function MaterialsTab() {
+  const [courses, setCourses] = useState<any[]>([]);
+  useEffect(() => { coursesApi.getAll().then((r: any) => setCourses(Array.isArray(r) ? r : [])).catch(() => {}); }, []);
+  const reload = () => coursesApi.getAll().then((r: any) => setCourses(Array.isArray(r) ? r : [])).catch(() => {});
+  return (
+    <div>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Материалы курсов</h2>
+      <div className="space-y-6">
+        {courses.map((c: any) => (
+          <div key={c.id} className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+            <div className="font-syne font-bold text-base mb-3">{c.title} ({c.slug})</div>
+            <p className="text-[.8rem] mb-4" style={{color:'var(--muted)'}}>Добавление материалов через API: POST /api/courses/:id/materials. Список материалов загружается при открытии курса.</p>
+            <a href={`/courses/${c.slug}`} className="text-[.82rem]" style={{color:'var(--c1)'}}>Открыть курс →</a>
           </div>
         ))}
       </div>

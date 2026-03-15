@@ -17,15 +17,19 @@ export function MusicCursor() {
     const onMove = (e: MouseEvent) => {
       el.style.left = e.clientX + 'px';
       el.style.top = e.clientY + 'px';
-      el.classList.add('visible');
+      el.style.opacity = '0.85';
     };
-    const onLeave = () => el.classList.remove('visible');
-    const onEnter = () => el.classList.add('visible');
-    const onDown = () => el.style.transform = 'translate(-3px,-15px) scale(.75)';
-    const onUp = () => el.style.transform = 'translate(-3px,-15px) scale(1)';
+    const onLeave = () => { el.style.opacity = '0'; };
+    const onEnter = (e: MouseEvent) => {
+      el.style.left = e.clientX + 'px';
+      el.style.top = e.clientY + 'px';
+      el.style.opacity = '0.85';
+    };
+    const onDown = () => { el.style.transform = 'translate(-3px,-15px) scale(.75)'; };
+    const onUp = () => { el.style.transform = 'translate(-3px,-15px) scale(1)'; };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseleave', onLeave);
-    document.addEventListener('mouseenter', onEnter);
+    document.addEventListener('mouseenter', onEnter as EventListener);
     document.addEventListener('mousedown', onDown);
     document.addEventListener('mouseup', onUp);
     const onBtnEnter = () => el.classList.add('on-btn');
@@ -37,7 +41,7 @@ export function MusicCursor() {
     return () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseleave', onLeave);
-      document.removeEventListener('mouseenter', onEnter);
+      document.removeEventListener('mouseenter', onEnter as EventListener);
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('mouseup', onUp);
     };
@@ -46,7 +50,23 @@ export function MusicCursor() {
   if (perfMode || isTouch) return null;
 
   return (
-    <div id="music-cursor" ref={ref} style={{ position:'fixed', zIndex:9998, pointerEvents:'none', fontSize:17, lineHeight:1, transform:'translate(-3px,-15px)', userSelect:'none' }}>
+    <div
+      id="music-cursor"
+      ref={ref}
+      style={{
+        position: 'fixed',
+        zIndex: 9998,
+        pointerEvents: 'none',
+        fontSize: 17,
+        lineHeight: 1,
+        transform: 'translate(-3px,-15px)',
+        userSelect: 'none',
+        opacity: 0,
+        transition: 'opacity .15s, color .2s, transform .15s',
+        color: 'var(--c1)',
+        filter: 'drop-shadow(0 0 6px var(--c1))',
+      }}
+    >
       ♪
     </div>
   );
