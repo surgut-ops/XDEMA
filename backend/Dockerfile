@@ -10,5 +10,7 @@ RUN npx prisma generate
 COPY src ./src
 RUN npm run build
 RUN test -f dist/main.js && echo "✅ main.js exists" || exit 1
+COPY start.sh ./start.sh
+RUN chmod +x start.sh
 EXPOSE 3001
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "start.sh"]
