@@ -125,6 +125,7 @@ export const adminNotifApi = {
   send: (data: any) => api.post('/admin/notifications', data),
   getAll: () => api.get('/admin/notifications'),
   delete: (id: number) => api.delete(`/admin/notifications/${id}`),
+  telegramTest: () => api.post('/admin/notifications/telegram-test'),
 };
 
 export default api;

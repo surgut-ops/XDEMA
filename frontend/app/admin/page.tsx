@@ -333,19 +333,37 @@ function GalleryTab() {
 }
 
 function PricesTab() {
+  const [courses, setCourses] = useState<any[]>([]);
   const [djPrices, setDjPrices] = useState<any[]>([]);
   const [qrPrices, setQrPrices] = useState<any>({});
   const [saved, setSaved] = useState(false);
   useEffect(() => {
+    coursesApi.getAll().then((r: any) => setCourses(Array.isArray(r) ? r : [])).catch(() => {});
     settingsApi.get('djPrices').then((r: any) => setDjPrices(Array.isArray(r) ? r : (r?.value ? r.value : []) || [])).catch(() => {});
     settingsApi.get('qrPrices').then((r: any) => setQrPrices(r && typeof r === 'object' ? r : (r?.value ? r.value : {}) || {})).catch(() => {});
   }, []);
+  const saveCoursePrice = async (id: number, price: number) => { await coursesApi.update(id, { price }); setSaved(true); setTimeout(() => setSaved(false), 2000); };
   const saveDj = async () => { await settingsApi.set('djPrices', djPrices); setSaved(true); setTimeout(() => setSaved(false), 2000); };
   const saveQr = async () => { await settingsApi.set('qrPrices', qrPrices); setSaved(true); setTimeout(() => setSaved(false), 2000); };
   return (
     <div>
       <h2 className="font-syne font-bold text-[1.45rem] mb-5">Цены</h2>
       {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      {courses.length > 0 && (
+        <div className="rounded-xl border p-5 mb-4" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+          <div className="font-syne font-bold text-base mb-4">Тарифы обучения</div>
+          <div className="flex flex-wrap gap-4 items-end">
+            {courses.slice(0, 3).map((c: any) => (
+              <div key={c.id} className="flex items-center gap-2">
+                <label className="text-[.85rem] w-24" style={{color:'var(--muted)'}}>{c.title}</label>
+                <input className="form-control w-28" type="number" value={c.price} onChange={e => setCourses(courses.map(x => x.id === c.id ? {...x, price: +e.target.value} : x))} />
+                <span className="text-[.82rem]" style={{color:'var(--muted)'}}>₽</span>
+                <button onClick={() => saveCoursePrice(c.id, c.price)} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="rounded-xl border p-5 mb-4" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
         <div className="font-syne font-bold text-base mb-4">Прайс DJ</div>
         {djPrices.map((item: any, i: number) => (
@@ -426,31 +444,49 @@ function BlocksTab() {
 
 function EditorTab() {
   const [hero, setHero] = useState<any>({});
+  const [colors, setColors] = useState<any>({ hc1: '#ffffff', hc2: '#00e5ff', hc3: '#ff2d78', ac1: '#00e5ff', ac2: '#7b61ff' });
   const [saved, setSaved] = useState(false);
-  useEffect(() => { settingsApi.get('hero').then((r: any) => setHero(r && typeof r === 'object' ? r : {})).catch(() => {}); }, []);
+  useEffect(() => {
+    settingsApi.get('hero').then((r: any) => setHero(r && typeof r === 'object' ? r : {})).catch(() => {});
+    settingsApi.get('colors').then((r: any) => setColors(r && typeof r === 'object' ? r : { hc1: '#ffffff', hc2: '#00e5ff', hc3: '#ff2d78', ac1: '#00e5ff', ac2: '#7b61ff' })).catch(() => {});
+  }, []);
   const save = async () => { await settingsApi.set('hero', hero); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const saveColors = async () => { await settingsApi.set('colors', colors); setSaved(true); setTimeout(() => setSaved(false), 2000); };
   return (
     <div>
-      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Редактор текстов</h2>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Hero – тексты и размеры</h2>
       {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
-      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+      <div className="rounded-xl border p-5 mb-6" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
         {[['title','Заголовок (XDEMA)'],['sub1','Подзаголовок 1'],['sub2','Подзаголовок 2']].map(([k,label]) => (
           <div key={k} className="mb-3">
             <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>{label}</label>
             <input className="form-control" value={hero[k]||''} onChange={e => setHero({...hero,[k]:e.target.value})} />
           </div>
         ))}
-        <div className="flex gap-4 mb-3">
-          <div className="flex-1">
-            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Размер заголовка (rem)</label>
-            <input className="form-control" type="number" step="0.1" value={hero.titleSize??9} onChange={e => setHero({...hero,titleSize:+e.target.value})} />
-          </div>
-          <div className="flex-1">
-            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Размер подзаголовка</label>
-            <input className="form-control" type="number" step="0.05" value={hero.subSize??1.05} onChange={e => setHero({...hero,subSize:+e.target.value})} />
-          </div>
+        <div className="mb-3">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Размер заголовка: {hero.titleSize ?? 9}rem</label>
+          <input type="range" min="3" max="12" step="0.5" value={hero.titleSize ?? 9} onChange={e => setHero({...hero, titleSize: +e.target.value})} className="w-full h-2 rounded-lg accent-[var(--c1)]" />
         </div>
-        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить</button>
+        <div className="mb-4">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Размер подзаголовков: {hero.subSize ?? 1.05}rem</label>
+          <input type="range" min="0.7" max="1.8" step="0.05" value={hero.subSize ?? 1.05} onChange={e => setHero({...hero, subSize: +e.target.value})} className="w-full h-2 rounded-lg accent-[var(--c1)]" />
+        </div>
+        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Применить</button>
+      </div>
+      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-base mb-2">Цвета hero-заголовка</div>
+        <p className="text-[.78rem] mb-4" style={{color:'var(--muted)'}}>Градиент заголовка XDEMA на главной. Можно переопределить.</p>
+        {[['hc1','Цвет 1 (начало градиента)'],['hc2','Цвет 2 (середина)'],['hc3','Цвет 3 (конец)'],['ac1','Цвет акцента 1 (кнопки, ссылки)'],['ac2','Цвет акцента 2']].map(([k, label]) => (
+          <div key={k} className="flex items-center gap-3 mb-3">
+            <label className="w-48 text-[.8rem]" style={{color:'var(--muted)'}}>{label}</label>
+            <input type="color" value={colors[k] || '#00e5ff'} onChange={e => setColors({...colors, [k]: e.target.value})} className="w-10 h-8 rounded cursor-pointer border" style={{borderColor:'var(--border)'}} />
+            <input className="form-control flex-1 max-w-[120px]" value={colors[k] || ''} onChange={e => setColors({...colors, [k]: e.target.value})} />
+          </div>
+        ))}
+        <div className="flex gap-2 mt-4">
+          <button onClick={saveColors} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить цвета</button>
+          <button onClick={() => setColors({ hc1: '#ffffff', hc2: '#00e5ff', hc3: '#ff2d78', ac1: '#00e5ff', ac2: '#7b61ff' })} className="px-5 py-2 rounded-lg text-sm" style={{background:'var(--glass2)',border:'1px solid var(--border)',color:'var(--muted)'}}>Сбросить</button>
+        </div>
       </div>
     </div>
   );
@@ -523,17 +559,22 @@ function NotifyTab() {
         ))}
         <div className="mb-4">
           <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Кому</label>
-          <select className="form-control" value={form.targetCourse || (form.userId ? 'user' : 'all')} onChange={e => { const v = e.target.value; if (v==='all') setForm({...form,targetAll:true,targetCourse:'',userId:''}); else if (v==='user') setForm({...form,targetAll:false,targetCourse:''}); else setForm({...form,targetAll:false,targetCourse:v,userId:''}); }} style={{background:'var(--bg2)'}}>
+          <select className="form-control mb-2" value={form.targetCourse || (form.targetAll ? 'all' : 'user')} onChange={e => { const v = e.target.value; if (v==='all') setForm({...form,targetAll:true,targetCourse:'',userId:''}); else if (v==='user') setForm({...form,targetAll:false,targetCourse:'user',userId:form.userId}); else setForm({...form,targetAll:false,targetCourse:v,userId:''}); }} style={{background:'var(--bg2)'}}>
             <option value="all">Всем пользователям</option>
             <option value="basic">Базовый курс</option>
             <option value="middle">Средний курс</option>
             <option value="premium">Премиум курс</option>
             <option value="user">Конкретному пользователю</option>
           </select>
+          {form.targetCourse === 'user' && (
+            <input className="form-control mt-2" type="number" placeholder="ID пользователя" value={form.userId} onChange={e => setForm({...form, userId: e.target.value})} />
+          )}
         </div>
         <button onClick={send} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Отправить</button>
       </div>
+      <div className="font-syne font-bold text-base mt-6 mb-3">Отправленные</div>
       <div className="space-y-2">
+        {notifs.length === 0 && <p className="text-[.85rem] py-4" style={{color:'var(--muted)'}}>Пока нет отправленных уведомлений.</p>}
         {notifs.map((n:any) => (
           <div key={n.id} className="flex justify-between items-start p-3 rounded-xl" style={{background:'rgba(255,255,255,.02)',border:'1px solid var(--border)'}}>
             <div><div className="font-semibold text-[.87rem]">{n.title}</div><div className="text-[.77rem]" style={{color:'var(--muted)'}}>{n.text?.slice(0,80)}</div></div>
@@ -551,47 +592,107 @@ function HeroBgTab() {
   const [saved, setSaved] = useState(false);
   useEffect(() => { settingsApi.get('heroBg').then((r:any) => setBg(r && typeof r === 'object' ? r : defaultBg)).catch(()=>{}); }, []);
   const save = async () => { await settingsApi.set('heroBg', bg); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const reset = () => { setBg(defaultBg); save(); };
   const PRESETS = [['orbs','Орбы'],['sonic','Волны'],['aurora','Аврора'],['vinyl','Виниловые кольца'],['neon','Неон'],['nebula','Туманность']];
   return (
     <div>
-      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Фон главной</h2>
+      <h2 className="font-syne font-bold text-[1.45rem] mb-5">Фон главной страницы</h2>
       {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
-      <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
-        <div className="font-syne font-bold text-sm mb-3">Пресет анимации</div>
+      <p className="text-[.88rem] mb-4" style={{color:'var(--muted)'}}>Выберите готовый стиль или задайте своё изображение. Текст, кнопки и пульт автоматически адаптируются.</p>
+      <div className="rounded-xl border p-5 mb-6" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-sm mb-3">Пресеты фона</div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
           {PRESETS.map(([id,label]) => (
             <button key={id} onClick={() => setBg({type:'preset',id})} className="py-2 px-3 rounded-lg text-[.82rem] font-medium transition-all text-left" style={{background:bg.id===id?'rgba(0,229,255,.12)':'var(--glass2)',border:`1px solid ${bg.id===id?'rgba(0,229,255,.3)':'var(--border)'}`,color:bg.id===id?'var(--c1)':'var(--text2)'}}>{label}</button>
           ))}
         </div>
         <div className="border-t pt-4 mb-4" style={{borderColor:'var(--border)'}}>
-          <div className="font-syne font-bold text-sm mb-3">Или своё изображение</div>
-          <input className="form-control mb-2" placeholder="URL изображения" value={bg.type==='image'?bg.url||'':''} onChange={e=>setBg({type:'image',url:e.target.value,overlay:55})} />
+          <div className="font-syne font-bold text-sm mb-3">Своё фоновое изображение</div>
+          <div className="mb-2">
+            <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>URL изображения</label>
+            <input className="form-control" placeholder="https://example.com/your-bg.jpg" value={bg.type==='image'?bg.url||'':''} onChange={e=>setBg({type:'image',url:e.target.value,overlay:55})} />
+          </div>
           {bg.type==='image' && (
-            <div>
-              <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Затемнение: {bg.overlay??55}%</label>
-              <input type="range" min="0" max="90" value={bg.overlay??55} onChange={e=>setBg({...bg,overlay:+e.target.value})} className="w-full" />
+            <div className="mb-4">
+              <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>Затемнение поверх изображения: {bg.overlay??55}%</label>
+              <input type="range" min="0" max="90" value={bg.overlay??55} onChange={e=>setBg({...bg,overlay:+e.target.value})} className="w-full h-2 rounded-lg accent-[var(--c1)]" />
             </div>
           )}
         </div>
-        <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Применить фон</button>
+        <div className="flex gap-2">
+          <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Применить изображение</button>
+          <button onClick={reset} className="px-5 py-2 rounded-lg text-sm" style={{background:'var(--glass2)',border:'1px solid var(--border)',color:'var(--muted)'}}>Сбросить к стандарту</button>
+        </div>
+      </div>
+      <div className="rounded-xl border p-6" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-sm mb-3">Превью</div>
+        <div className="h-32 rounded-xl flex items-center justify-center" style={{background:'var(--bg2)',border:'1px solid var(--border)'}}>
+          <span className="font-syne font-extrabold text-2xl bg-gradient-to-r from-[var(--hc1,#fff)] via-[var(--hc2,#00e5ff)] to-[var(--hc3,#ff2d78)] bg-clip-text text-transparent">XDEMA</span>
+        </div>
       </div>
     </div>
   );
 }
 
 function TelegramTab() {
+  const [tg, setTg] = useState({ botToken: '', chatId: '' });
+  const [saved, setSaved] = useState(false);
+  const [testSent, setTestSent] = useState(false);
+  useEffect(() => { settingsApi.get('telegramSettings').then((r: any) => setTg(r && typeof r === 'object' ? { botToken: r.botToken || '', chatId: r.chatId || '' } : { botToken: '', chatId: '' })).catch(() => {}); }, []);
+  const save = async () => { await settingsApi.set('telegramSettings', tg); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const sendTest = async () => {
+    try {
+      await adminNotifApi.telegramTest();
+      setTestSent(true); setTimeout(() => setTestSent(false), 3000);
+    } catch {
+      setTestSent(true); setTimeout(() => setTestSent(false), 3000);
+    }
+  };
+  const configured = !!(tg.botToken?.trim() && tg.chatId?.trim());
   return (
     <div>
       <h2 className="font-syne font-bold text-[1.45rem] mb-5">Telegram уведомления</h2>
+      {saved && <div className="mb-4 px-4 py-2 rounded-lg text-sm" style={{background:'rgba(0,232,122,.1)',color:'var(--c5)'}}>✓ Сохранено</div>}
+      <div className="rounded-xl border p-5 mb-6" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-base mb-3">Настройка бота</div>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-2 h-2 rounded-full" style={{background: configured ? 'var(--c5)' : 'var(--c2)'}} />
+          <span className="text-[.85rem]" style={{color:'var(--muted)'}}>{configured ? 'Настроен' : 'Не настроен — введите данные и сохраните'}</span>
+        </div>
+        <div className="mb-3">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>BOT TOKEN (от @BotFather)</label>
+          <input className="form-control font-mono text-[.85rem]" value={tg.botToken} onChange={e => setTg({...tg, botToken: e.target.value})} placeholder="123456:ARC-DEF1234..." type="password" autoComplete="off" />
+        </div>
+        <div className="mb-4">
+          <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1.5" style={{color:'var(--muted)'}}>CHAT ID (куда слать уведомления)</label>
+          <input className="form-control font-mono text-[.85rem]" value={tg.chatId} onChange={e => setTg({...tg, chatId: e.target.value})} placeholder="-100123456789" />
+        </div>
+        <div className="flex gap-2">
+          <button onClick={save} className="px-5 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Сохранить</button>
+          <button onClick={sendTest} className="px-5 py-2 rounded-lg text-sm" style={{background:'var(--glass2)',border:'1px solid var(--border)',color:'var(--muted)'}}>Тест отправки</button>
+        </div>
+        {testSent && <p className="text-[.8rem] mt-2" style={{color:'var(--c5)'}}>Запрос отправлен. Проверьте чат Telegram.</p>}
+      </div>
+      <div className="rounded-xl border p-5 mb-6" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+        <div className="font-syne font-bold text-sm mb-3">Как создать бота</div>
+        <ol className="list-decimal list-inside space-y-2 text-[.85rem] mb-0" style={{color:'var(--muted)'}}>
+          <li>Откройте Telegram → найдите @BotFather</li>
+          <li>Отправьте команду /newbot</li>
+          <li>Введите имя и username бота → получите Token</li>
+          <li>Для Chat ID: добавьте @userinfobot в нужный чат → он пришлёт ID</li>
+          <li>Вставьте Token и Chat ID выше → Сохранить + Тест</li>
+        </ol>
+      </div>
       <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
-        <p className="text-[.88rem] mb-4" style={{color:'var(--muted)'}}>Telegram бот настраивается через переменные окружения Railway:</p>
-        {[['TELEGRAM_BOT_TOKEN','Токен от @BotFather'],['TELEGRAM_CHAT_ID','ID чата/группы (-100...)']].map(([k,desc]) => (
-          <div key={k} className="mb-3 p-3 rounded-lg" style={{background:'rgba(0,0,0,.4)',border:'1px solid var(--border)'}}>
-            <div className="font-mono text-[.78rem] mb-1" style={{color:'var(--c1)'}}>{k}</div>
-            <div className="text-[.75rem]" style={{color:'var(--muted)'}}>{desc}</div>
-          </div>
-        ))}
-        <p className="text-[.8rem] mt-4" style={{color:'var(--muted)'}}>Уведомления автоматически приходят при новом заказе, платеже, отзыве и сообщении.</p>
+        <div className="font-syne font-bold text-sm mb-3">Уведомления отправляются при</div>
+        <ul className="list-disc list-inside text-[.85rem] space-y-1" style={{color:'var(--muted)'}}>
+          <li>Новом заказе или бронировании</li>
+          <li>Оплате курса</li>
+          <li>QR-платеже от гостя</li>
+          <li>Новом отзыве</li>
+          <li>Новом сообщении из форм</li>
+        </ul>
+        <p className="text-[.8rem] mt-4" style={{color:'var(--muted)'}}>Для работы в продакшене задайте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID в Railway Variables — бэкенд использует их при отправке.</p>
       </div>
     </div>
   );
@@ -620,20 +721,82 @@ function LiveQRTab() {
 
 function MaterialsTab() {
   const [courses, setCourses] = useState<any[]>([]);
+  const [expandedCourse, setExpandedCourse] = useState<number | null>(null);
   useEffect(() => { coursesApi.getAll().then((r: any) => setCourses(Array.isArray(r) ? r : [])).catch(() => {}); }, []);
-  const reload = () => coursesApi.getAll().then((r: any) => setCourses(Array.isArray(r) ? r : [])).catch(() => {});
   return (
     <div>
       <h2 className="font-syne font-bold text-[1.45rem] mb-5">Материалы курсов</h2>
+      <p className="text-[.85rem] mb-6" style={{color:'var(--muted)'}}>Материалы видны только пользователям, купившим соответствующий курс.</p>
       <div className="space-y-6">
         {courses.map((c: any) => (
-          <div key={c.id} className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
-            <div className="font-syne font-bold text-base mb-3">{c.title} ({c.slug})</div>
-            <p className="text-[.8rem] mb-4" style={{color:'var(--muted)'}}>Добавление материалов через API: POST /api/courses/:id/materials. Список материалов загружается при открытии курса.</p>
-            <a href={`/courses/${c.slug}`} className="text-[.82rem]" style={{color:'var(--c1)'}}>Открыть курс →</a>
-          </div>
+          <CourseMaterialsCard key={c.id} course={c} expanded={expandedCourse === c.id} onToggle={() => setExpandedCourse(expandedCourse === c.id ? null : c.id)} />
         ))}
       </div>
+    </div>
+  );
+}
+
+function CourseMaterialsCard({ course, expanded, onToggle }: { course: any; expanded: boolean; onToggle: () => void }) {
+  const [materials, setMaterials] = useState<any[]>([]);
+  const [form, setForm] = useState({ title: '', type: 'VIDEO' as const, url: '', content: '' });
+  const load = () => coursesApi.getOne(course.slug).then((r: any) => setMaterials(r?.materials || [])).catch(() => setMaterials([]));
+  useEffect(() => { if (expanded) load(); }, [expanded, course.slug]);
+  const add = async () => {
+    if (!form.title.trim()) return;
+    await coursesApi.addMaterial(course.id, { title: form.title.trim(), type: form.type, url: form.url || undefined, content: form.content || undefined });
+    setForm({ title: '', type: 'VIDEO', url: '', content: '' });
+    load();
+  };
+  return (
+    <div className="rounded-xl border p-5" style={{background:'var(--card)',border:'1px solid var(--border)'}}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="font-syne font-bold text-base">{course.title}</div>
+        <button onClick={onToggle} className="px-3 py-1.5 rounded-lg text-[.8rem] font-medium" style={{background:'var(--glass2)',border:'1px solid var(--border)',color:'var(--c1)'}}>
+          {expanded ? 'Свернуть' : 'ДОБАВИТЬ МАТЕРИАЛ'}
+        </button>
+      </div>
+      {!expanded && materials.length === 0 && <p className="text-[.82rem]" style={{color:'var(--muted)'}}>Материалов нет.</p>}
+      {expanded && (
+        <>
+          {materials.length > 0 && (
+            <div className="mb-4 space-y-2">
+              {materials.map((m: any) => (
+                <div key={m.id} className="flex justify-between items-center py-2 px-3 rounded-lg" style={{background:'rgba(255,255,255,.03)',border:'1px solid var(--border)'}}>
+                  <span className="text-[.85rem]">{m.title}</span>
+                  <span className="text-[.7rem] px-2 py-0.5 rounded" style={{background:'var(--glass2)',color:'var(--muted)'}}>{m.type}</span>
+                  <button onClick={async () => { await coursesApi.deleteMaterial(m.id); load(); }} className="text-[.75rem] px-2 py-1 rounded" style={{background:'rgba(255,45,120,.1)',color:'var(--c2)'}}>Удалить</button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="rounded-lg p-4 border" style={{borderColor:'var(--border)'}}>
+            <div className="grid gap-3 mb-3">
+              <div>
+                <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1" style={{color:'var(--muted)'}}>Название</label>
+                <input className="form-control" value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="Название материала" />
+              </div>
+              <div>
+                <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1" style={{color:'var(--muted)'}}>Тип</label>
+                <select className="form-control" value={form.type} onChange={e => setForm({...form, type: e.target.value as any})} style={{background:'var(--bg2)'}}>
+                  <option value="VIDEO">Видео</option>
+                  <option value="PDF">PDF</option>
+                  <option value="TEXT">Текст</option>
+                  <option value="LINK">Ссылка</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1" style={{color:'var(--muted)'}}>URL (YouTube, PDF, ссылка)</label>
+                <input className="form-control" value={form.url} onChange={e => setForm({...form, url: e.target.value})} placeholder="https://..." />
+              </div>
+              <div>
+                <label className="block text-[.7rem] uppercase tracking-[.1em] mb-1" style={{color:'var(--muted)'}}>Текстовое содержание</label>
+                <textarea className="form-control" rows={2} value={form.content} onChange={e => setForm({...form, content: e.target.value})} placeholder="Текст..." />
+              </div>
+            </div>
+            <button onClick={add} className="px-4 py-2 rounded-lg text-sm font-semibold text-black" style={{background:'linear-gradient(135deg,var(--c1),#009ab8)'}}>Добавить</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -2,11 +2,15 @@ import { Controller, Get, Post, Delete, Param, Body, UseGuards } from '@nestjs/c
 import { ApiTags } from '@nestjs/swagger';
 import { PrismaService } from '../common/prisma.service';
 import { AdminGuard } from '../auth/guards';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @ApiTags('Admin/Notifications')
 @Controller('admin/notifications')
 export class AdminNotifController {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notif: NotificationsService,
+  ) {}
 
   @Post()
   @UseGuards(AdminGuard)
@@ -35,5 +39,12 @@ export class AdminNotifController {
   @UseGuards(AdminGuard)
   delete(@Param('id') id: string) {
     return this.prisma.userNotification.delete({ where: { id: +id } });
+  }
+
+  @Post('telegram-test')
+  @UseGuards(AdminGuard)
+  async telegramTest() {
+    await this.notif.sendTelegram('🔔 Тест из админки XDEMA');
+    return { ok: true };
   }
 }
