@@ -18,7 +18,7 @@
 
 ## Railway (backend XDEMA)
 
-**Ошибки «Cannot find module /app/dist/main»** и **«healthcheck failed»** возникают, когда Railway собирает не backend (NestJS), а frontend (Next.js) — в логах при этом видно `> next build`. Тогда в образе нет `dist/main.js`, и старт падает.
+**Ошибки «Cannot find module /app/dist/main»** и **«healthcheck failed»** возникают, когда Railway собирает не backend (NestJS), а frontend (Next.js) — в Build Logs при этом видно `> next build`. Тогда в образе нет `dist/main.js`, и старт падает. Если в Deploy Logs видно `Cannot find module '/app/dist/main'` — проверь, что у сервиса XDEMA в Railway задан **Root Directory: backend** и сделай Redeploy.
 
 ### Что сделать
 

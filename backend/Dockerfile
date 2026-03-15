@@ -26,6 +26,7 @@ COPY package.json package-lock.json* ./
 COPY --from=builder /app/prisma ./prisma
 RUN npm install --omit=dev
 COPY --from=builder /app/dist ./dist
+RUN test -f dist/main.js || (echo "ERROR: dist/main.js missing. Set Railway Root Directory to 'backend'." && exit 1)
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 EXPOSE 3001
