@@ -277,9 +277,35 @@ function GalleryTab() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {items.map((g:any,i:number)=>(
           <div key={g.id} className="rounded-xl overflow-hidden relative" style={{border:'1px solid var(--border)'}}>
-            {g.imageUrl ? <img src={g.imageUrl} alt={g.label} className="w-full object-cover" style={{height:120}} loading="lazy" />
-              : <div className="flex items-center justify-center text-[.76rem] h-[120px]" style={{background:'rgba(0,229,255,.1)',color:'var(--muted)'}}>{g.label}</div>}
-            <button onClick={async()=>{await galleryApi.delete(g.id);galleryApi.getAll().then(setItems).catch(()=>{});}} className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white text-[.65rem]" style={{background:'var(--c2)'}}>✕</button>
+            {g.imageUrl ? (
+              <img
+                src={g.imageUrl}
+                alt={g.label}
+                className="w-full object-cover"
+                style={{ height: 120 }}
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className="flex items-center justify-center text-[.76rem] h-[120px]"
+                style={{ background: 'rgba(0,229,255,.1)', color: 'var(--muted)' }}
+              >
+                {g.label}
+              </div>
+            )}
+            <button
+              onClick={async () => {
+                await galleryApi.delete(g.id);
+                galleryApi
+                  .getAll()
+                  .then((res: any) => setItems(res as any[]))
+                  .catch(() => {});
+              }}
+              className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white text-[.65rem]"
+              style={{ background: 'var(--c2)' }}
+            >
+              ✕
+            </button>
           </div>
         ))}
       </div>
