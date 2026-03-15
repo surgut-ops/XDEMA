@@ -1,4 +1,5 @@
-FROM node:18-alpine
+FROM node:18-bullseye-slim
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package*.json ./
 COPY tsconfig*.json ./
@@ -7,8 +8,7 @@ COPY prisma ./prisma/
 RUN npm install
 RUN npx prisma generate
 COPY src ./src
-RUN npm run build 2>&1 | tail -20
-RUN ls -la dist/ && echo "✅ dist contents above"
-RUN test -f dist/main.js && echo "✅ main.js exists" || (echo "❌ main.js missing, listing dist:" && find dist/ -name "*.js" | head -20 && exit 1)
+RUN npm run build
+RUN test -f dist/main.js && echo "✅ main.js exists" || exit 1
 EXPOSE 3001
 CMD ["node", "dist/main"]
